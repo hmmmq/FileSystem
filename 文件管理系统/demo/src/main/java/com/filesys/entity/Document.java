@@ -42,7 +42,7 @@ public class Document implements Serializable {
 
     private Boolean permission;
 
-    private Integer visibleDepartmentId;
+    private String visibleDepartmentId;
 
     private String visibleUserId;
 }

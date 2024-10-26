@@ -1,6 +1,7 @@
 package com.filesys.controller;
 
 import com.filesys.entity.Document;
+import com.filesys.entity.User;
 import com.filesys.service.IDocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Controller
@@ -83,26 +86,40 @@ export default {
 </script>
 
  * */
-    @PostMapping("/upload")
+    @PostMapping("/upload/file")
     @ResponseBody
-    public Boolean uploadFile(@RequestParam("file") MultipartFile file,  @RequestBody Document document) {
+    public Boolean uploadFile(@RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
             return false;
         }
 
         String fileName = file.getOriginalFilename();
-        File dest = new File(uploadPath + File.separator + fileName);
+        Path filePath = Paths.get( uploadPath, fileName).toAbsolutePath();
+
+        //判断文件是否存在
+        if (filePath.toFile().exists()) {
+            return false;
+        }
+
 
         try {
-            file.transferTo(dest);
-            documentService.save(document);
+            //写入文件
+            file.transferTo(filePath);
+
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    @PostMapping
+    @ResponseBody
+    public Boolean uploadFile(@RequestBody Document document) {
+        return documentService.save(document);
+    }
+
 
 
     /*
@@ -156,17 +173,31 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:8086'; // Adjust the base URL as needed
 </script>
     * */
-    @GetMapping("/download/{fileName}")
+    @GetMapping("/download/")
     @ResponseBody
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
-        File file = new File(uploadPath + File.separator + fileName);
+    public ResponseEntity<Resource> downloadFile(@RequestBody User user, @RequestBody Document document) {
+        //先判断用户是否有权限下载文件
+        document = documentService.getById(document.getId());
+        if(document == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!document.getPermission()){
+            if (!document.getVisibleUserId().contains(user.getId()) && !document.getVisibleDepartmentId().contains(user.getDepartmentId().toString())){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        }
+
+
+
+        Path filePath = Paths.get( uploadPath, document.getUrl()).toAbsolutePath();
+        File file = filePath.toFile();
         if (!file.exists()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         Resource resource = new FileSystemResource(file);
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.getUrl() + "\"");
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
