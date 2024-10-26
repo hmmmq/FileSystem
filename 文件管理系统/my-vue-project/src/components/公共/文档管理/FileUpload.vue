@@ -24,7 +24,7 @@
                             </div>
                             <div class="form-group">
                                 <label>文档类别</label>
-                                <input type="text" class="form-control" placeholder="" v-model="document.type">
+                                <input type="text" class="form-control" placeholder="" v-model="document.category">
                             </div>
                             <div class="form-group">
                                 <label for="input-3">文档关键字</label>
@@ -34,39 +34,49 @@
 
                             <div class="form-group">
                                 <label for="input-4">权限</label>
-                                <select class="custom-select" id="inputGroupSelect03" v-model="document.permission">
+                                <select class="custom-select" id="inputGroupSelect03" @change="updatepermission"
+                                    ref="permissionSelect">
                                     <option selected="">选择...</option>
-                                    <option value="true">全部可见</option>
-                                    <option value="true" @click="uservisible = true">指定人可见</option>
-                                    <option value="true" @click="departmentvisible = true">指定部门可见</option>
-                                    <option value="false">仅自己可见</option>
+                                    <option value="全部可见">全部可见</option>
+                                    <option value="指定人可见" @click="uservisible = true">指定人可见</option>
+                                    <option value="指定部门可见" @click="departmentvisible = true">指定部门可见</option>
+                                    <option value="仅自己可见">仅自己可见</option>
                                 </select>
-                                <select v-if="uservisible" class="custom-select" v-model="document.visible_user_id"
-                                    multiple @change="updateVisibleUserId">
-                                    <option selected="">选择...</option>
+                            </div>
+
+                            <div class="form-group" v-show="uservisible">
+                                <label>用户列表</label>
+                                <select class="custom-select" @change="updateVisibleUserId" multiple>
                                     <option v-for="user in users" :key="user.id" :value="user.id">
-                                        {{ user.name }}
+                                        {{ user.id }}{{ user.username }}
                                     </option>
                                 </select>
-                                <select v-if="departmentvisible" class="custom-select"
+                                <div>已选择用户:</div>
+                                <div>{{ document.visible_user_id }}</div>
+                            </div>
+                            <div class="form-group" v-show="departmentvisible">
+                                <label>部门列表</label>
+                                <select v-show="departmentvisible" class="custom-select"
                                     v-model="document.visible_department_id" @change="updateVisibleDepartmentId"
                                     multiple>
-                                    <option selected="">选择...</option>
+
                                     <option v-for="department in departments" :key="department.id"
                                         :value="department.id">
                                         {{ department.name }}
                                     </option>
 
                                 </select>
+                                <div>已选择部门:</div>
+                                <div>{{ document.visible_department_id }}</div>
                             </div>
                             <div class="form-group">
                                 <label for="input-4">文档描述</label>
-                                <textarea class="form-control" v-model="document.keyword"></textarea>
+                                <textarea class="form-control" v-model="document.description"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="input-4">上传文档</label>
                                 <input type="file" class="form-control valid" id="input-8" name="file" required=""
-                                    aria-invalid="false" @change="onFileChange">
+                                    aria-invalid="false" @change="onFileChange" ref="fileInput">
                             </div>
                             <br>
                             <div class="form-group">
@@ -88,7 +98,7 @@ export default {
     data() {
         return {
             file: null,
-            url: 'http://localhost:8080/document/upload',
+            url: 'http://localhost:8086/document/upload',
             user: {},
             document: {
                 name: '',
@@ -96,9 +106,9 @@ export default {
                 status: true,
                 category: '',
                 keyword: '',
-                permission: true,
+                permission: false,
                 description: '',
-                file: '',
+                url: '',
                 visible_department_id: '',
                 visible_user_id: ''
             },
@@ -110,13 +120,41 @@ export default {
     },
     mounted() {
         this.user = JSON.parse(localStorage.getItem('user'));
+        this.document.author = this.user.id;
         this.getDepartments();
         this.getUsers();
 
     },
     methods: {
+        updatepermission(event) {
+            switch (event.target.value) {
+                case '全部可见':
+                    this.departmentvisible = false;
+                    this.uservisible = false;
+                    this.document.permission = true;
+                    break;
+                case '指定人可见':
+                    this.departmentvisible = false;
+                    this.uservisible = true;
+                    break;
+                case '指定部门可见':
+                    this.departmentvisible = true;
+                    this.uservisible = false;
+                    break;
+                case '仅自己可见':
+                    this.departmentvisible = false;
+                    this.uservisible = false;
+                    break;
+            }
+        },
         onFileChange(event) {
+
             this.file = event.target.files[0];
+            if (this.file == null) {
+                return;
+            }
+            //获取filename
+            this.document.url = this.file.name;
         },
         updateVisibleDepartmentId(event) {
             const selectedOptions = Array.from(event.target.selectedOptions).map(option => option.value);
@@ -136,19 +174,51 @@ export default {
                 this.departments = res.data;
             })
         },
-        async submit() {
+        submit(event) {
+            event.preventDefault(); // 阻止默认的表单提交行为
+            //判断表格是否填写完整
+            if (this.document.name == '' || this.document.category == '' || this.document.keyword == '' || this.document.description == '' || this.file == null) {
+                alert('请填写完整的文档信息');
+                return;
+            }
+
             let formData = new FormData();
-            formData.append('file', this.document.file);
-            formData.append('document', new Blob([JSON.stringify(this.document)], { type: 'application/json' }));
+            formData.append('file', this.file);
             try {
-                const response = await axios.post('http://localhost:8086/document/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                if (response.data) {
-                    alert('上传成功');
-                }
+                axios.post('http://localhost:8086/document/upload/file', formData
+                ).then(res => {
+                    if (res.data) {
+                        axios.post('http://localhost:8086/document/', this.document).then(res => {
+                            if (res.data) {
+                                alert('上传成功');
+                                this.document = {
+                                    name: '',
+                                    author: '',
+                                    status: true,
+                                    category: '',
+                                    keyword: '',
+                                    permission: false,
+                                    description: '',
+                                    url: '',
+                                    visible_department_id: '',
+                                    visible_user_id: ''
+                                },
+                                    this.departmentvisible = false;
+                                this.uservisible = false;
+                                this.file = null;
+                                this.$refs.fileInput.value = ''; // 清空文件输入控件
+                                this.$refs.permissionSelect.value = '';//清空权限选择控件
+
+                            } else {
+                                alert('上传失败');
+                            }
+                        })
+
+                    } else {
+                        alert('上传失败,上传的文件名称重复,请更改文件名');
+                    }
+                })
+
             } catch (error) {
                 console.error('File upload failed', error);
                 alert('File upload failed');
