@@ -17,7 +17,7 @@
                     <div class="card-body">
                         <div class="card-title text-primary">文档资料</div>
                         <hr>
-                        <form>
+                        <form @submit.prevent="submit">
                             <div class="form-group">
                                 <label>文档名称</label>
                                 <input type="text" class="form-control" placeholder="" v-model="document.name">
@@ -33,50 +33,61 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="input-4">权限</label>
-                                <select class="custom-select" id="inputGroupSelect03" @change="updatepermission"
-                                    ref="permissionSelect">
+                                <label for="input-4">修改权限(如有)</label>
+                                <select class="custom-select" @change="updatePermission" ref="permissionSelect">
                                     <option selected="">选择...</option>
                                     <option value="全部可见">全部可见</option>
-                                    <option value="指定人可见" @click="uservisible = true">指定人可见</option>
-                                    <option value="指定部门可见" @click="departmentvisible = true">指定部门可见</option>
+                                    <option value="指定人可见">指定人可见</option>
+                                    <option value="指定部门可见">指定部门可见</option>
                                     <option value="仅自己可见">仅自己可见</option>
                                 </select>
+                                <br>
+                                <label for="input-4">当前部门可见列表</label>
+                                <input type="text" class="form-control" placeholder=""
+                                    v-model="document.visibleDepartmentId" disabled>
+                                <label for="input-4">当前用户可见列表</label>
+                                <input type="text" class="form-control" placeholder="" v-model="document.visibleUserId"
+                                    disabled>
+
                             </div>
 
-                            <div class="form-group" v-show="uservisible">
+                            <div class="form-group" v-if="uservisible">
                                 <label>用户列表</label>
                                 <select class="custom-select" @change="updateVisibleUserId" multiple>
                                     <option v-for="user in users" :key="user.id" :value="user.id">
-                                        {{ user.id }}{{ user.username }}
+                                        {{ user.username }}
                                     </option>
                                 </select>
                                 <div>已选择用户:</div>
                                 <div>{{ document.visibleUserId }}</div>
                             </div>
-                            <div class="form-group" v-show="departmentvisible">
-                                <label>部门列表</label>
-                                <select v-show="departmentvisible" class="custom-select"
-                                    v-model="document.visibleDepartmentId" @change="updateVisibleDepartmentId" multiple>
 
+                            <div class="form-group" v-if="departmentvisible">
+                                <label>部门列表</label>
+                                <select class="custom-select" v-model="document.visibleDepartmentId"
+                                    @change="updateVisibleDepartmentId" multiple>
                                     <option v-for="department in departments" :key="department.id"
                                         :value="department.id">
                                         {{ department.name }}
                                     </option>
-
                                 </select>
                                 <div>已选择部门:</div>
                                 <div>{{ document.visibleDepartmentId }}</div>
                             </div>
 
+
                             <div class="form-group">
-                                <label for="input-4">上传文档</label>
-                                <input type="file" class="form-control valid" id="input-8" name="file" required=""
+                                <label for="input-4">已经上传的文件名</label>
+                                <input type="text" class="form-control" placeholder="" v-model="document.url" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-4">上传更新文档(如有)</label>
+                                <input type="file" class="form-control valid" id="input-8" name="file"
                                     aria-invalid="false" @change="onFileChange" ref="fileInput">
                             </div>
                             <br>
                             <div class="form-group">
-                                <button class="btn btn-primary shadow-primary px-5 col-lg-12" @click="submit"><i
+                                <button class="btn btn-primary shadow-primary px-5 col-lg-12" type="submit"><i
                                         class="icon-lock"></i>保存</button>
                             </div>
                         </form>
@@ -85,27 +96,34 @@
             </div>
         </div>
         <!-- End container-fluid-->
-
     </div>
 </template>
+
 <script scoped>
 import axios from 'axios';
 export default {
+    props: {
+        initialDocument: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
             file: null,
             url: 'http://localhost:8086/document/upload',
             user: {},
             document: {
-                name: '',
+                id: this.initialDocument.id || '',
+                name: this.initialDocument.name || '',
                 author: '',
                 status: true,
-                category: '',
-                keyword: '',
+                category: this.initialDocument.category || '',
+                keyword: this.initialDocument.keyword || '',
                 permission: false,
-                url: '',
-                visibleDepartmentId: '',
-                visibleUserId: ''
+                url: this.initialDocument.url || '',
+                visibleDepartmentId: this.initialDocument.visibleDepartmentId || '',
+                visibleUserId: this.initialDocument.visibleUserId || ''
             },
             departmentvisible: false,
             uservisible: false,
@@ -118,38 +136,19 @@ export default {
         this.document.author = this.user.id;
         this.getDepartments();
         this.getUsers();
-
     },
     methods: {
-        updatepermission(event) {
-            switch (event.target.value) {
-                case '全部可见':
-                    this.departmentvisible = false;
-                    this.uservisible = false;
-                    this.document.permission = true;
-                    break;
-                case '指定人可见':
-                    this.departmentvisible = false;
-                    this.uservisible = true;
-                    break;
-                case '指定部门可见':
-                    this.departmentvisible = true;
-                    this.uservisible = false;
-                    break;
-                case '仅自己可见':
-                    this.departmentvisible = false;
-                    this.uservisible = false;
-                    break;
-            }
+        updatePermission(event) {
+            const value = event.target.value;
+            this.departmentvisible = value === '指定部门可见';
+            this.uservisible = value === '指定人可见';
+            this.document.permission = (value === '全部可见');
         },
         onFileChange(event) {
-
             this.file = event.target.files[0];
-            if (this.file == null) {
-                return;
+            if (this.file) {
+                this.document.url = this.file.name;
             }
-            //获取filename
-            this.document.url = this.file.name;
         },
         updateVisibleDepartmentId(event) {
             const selectedOptions = Array.from(event.target.selectedOptions).map(option => option.value);
@@ -162,62 +161,73 @@ export default {
         getUsers() {
             axios.get('http://localhost:8086/user/').then(res => {
                 this.users = res.data;
-            })
+            });
         },
         getDepartments() {
             axios.get('http://localhost:8086/department/').then(res => {
                 this.departments = res.data;
-            })
+            });
         },
-        submit(event) {
-            event.preventDefault(); // 阻止默认的表单提交行为
-            //判断表格是否填写完整
-            if (this.document.name == '' || this.document.category == '' || this.document.keyword == '' || this.file == null) {
+        submit() {
+            if (!this.validateForm()) {
                 alert('请填写完整的文档信息');
                 return;
             }
 
-            let formData = new FormData();
-            formData.append('file', this.file);
-            try {
-                axios.post('http://localhost:8086/document/upload/file', formData
-                ).then(res => {
-                    if (res.data) {
-                        axios.post('http://localhost:8086/document/', this.document).then(res => {
-                            if (res.data) {
-                                alert('上传成功');
-                                this.document = {
-                                    name: '',
-                                    author: this.user.id,
-                                    status: true,
-                                    category: '',
-                                    keyword: '',
-                                    permission: false,
-                                    url: '',
-                                    visibleDepartmentId: '',
-                                    visibleUserId: ''
-                                },
-                                    this.departmentvisible = false;
-                                this.uservisible = false;
-                                this.file = null;
-                                this.$refs.fileInput.value = ''; // 清空文件输入控件
-                                this.$refs.permissionSelect.value = '';//清空权限选择控件
+            if (this.file != null) {
+                let formData = new FormData();
+                formData.append('file', this.file);
+                axios.post('http://localhost:8086/document/upload/file', formData)
+                    .then(res => {
+                        if (res.data) {
+                            return axios.put('http://localhost:8086/document/' + this.document.id, this.document);
+                        } else {
+                            throw new Error('上传的文件名称重复,请更改文件名');
+                        }
+                    })
+                    .then(res => {
+                        alert('更新成功');
+                        console.log(res.data);
+                        this.resetForm();
+                        this.$emit('data-back', true);
 
-                            } else {
-                                alert('上传失败');
-                            }
-                        })
-
-                    } else {
-                        alert('上传失败,上传的文件名称重复,请更改文件名');
-                    }
-                })
-
-            } catch (error) {
-                console.error('File upload failed', error);
-                alert('File upload failed');
+                    })
+                    .catch(error => {
+                        alert(error.message || '更新失败');
+                    });
+            } else {
+                axios.put('http://localhost:8086/document/' + this.document.id, this.document)
+                    .then(res => {
+                        alert('更新成功');
+                        console.log(res.data);
+                        this.resetForm();
+                        this.$emit('data-back', true);
+                    })
+                    .catch(error => {
+                        alert(error.message || '更新失败');
+                    });
             }
-
+        },
+        validateForm() {
+            return this.document.name && this.document.category && this.document.keyword;
+        },
+        resetForm() {
+            this.document = {
+                id: '',
+                name: '',
+                author: this.user.id,
+                status: true,
+                category: '',
+                keyword: '',
+                permission: false,
+                url: '',
+                visibleDepartmentId: [],
+                visibleUserId: []
+            };
+            this.file = null;
+            this.$refs.fileInput.value = '';
+            this.departmentvisible = false;
+            this.uservisible = false;
         }
     }
 }

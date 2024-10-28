@@ -5,6 +5,8 @@
         <NavHeader @select-option="handleOptionSelect" />
         <WelcomePanel v-show="currentComponent === 'WelcomePanel'" />
         <FileUpload v-show="currentComponent === 'FileUpload'" />
+        <FileList v-show="currentComponent === 'FileList'" />
+
 
         <!-- <FileUpload v-show="currentComponent === 'FileUpload'" />
         <FileList v-show="currentComponent === 'FileList'" />
@@ -34,13 +36,14 @@ import SideNav from '@/components/公共/SideNav.vue';
 import NavHeader from '@/components/公共/NavHeader.vue';
 import WelcomePanel from '@/components/公共/WelcomePanel.vue';
 import FileUpload from '@/components/公共/文档管理/FileUpload.vue';
+import FileList from '@/components/公共/文档管理/FileList.vue';
 export default {
     components: {
         SideNav,
         NavHeader,
         WelcomePanel,
         FileUpload,
-        // FileList,
+        FileList,
         // RecordList,
         // RecordListUploadList,
         // RecordListDownLoadList,

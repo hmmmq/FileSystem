@@ -3,6 +3,7 @@ package com.filesys.controller;
 import com.filesys.entity.Document;
 import com.filesys.entity.User;
 import com.filesys.service.IDocumentService;
+import com.filesys.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -29,63 +30,10 @@ public class DocumentController {
 
     @Autowired
     private IDocumentService documentService;
+    @Autowired
+    private IUserService userService;
 
 
-    /*
-* vue代码
-*
-* <template>
-  <div>
-    <input type="file" @change="onFileChange" />
-    <input type="text" v-model="document.title" placeholder="Document Title" />
-    <button @click="uploadFile">Upload</button>
-  </div>
-</template>
-
-<script>
-import axios from 'axios';
-
-export default {
-  data() {
-    return {
-      file: null,
-      document: {
-        title: '',
-        // Add other document fields as needed
-      },
-    };
-  },
-  methods: {
-    onFileChange(event) {
-      this.file = event.target.files[0];
-    },
-    async uploadFile() {
-      if (!this.file) {
-        alert('Please select a file');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('file', this.file);
-      formData.append('document', new Blob([JSON.stringify(this.document)], { type: 'application/json' }));
-
-      try {
-        const response = await axios.post('/document/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        alert('File uploaded successfully');
-      } catch (error) {
-        console.error('File upload failed', error);
-        alert('File upload failed');
-      }
-    },
-  },
-};
-</script>
-
- * */
     @PostMapping("/upload/file")
     @ResponseBody
     public Boolean uploadFile(@RequestParam("file") MultipartFile file) {
@@ -122,73 +70,39 @@ export default {
 
 
 
-    /*
-    *
-  <template>
-  <div>
-    <input type="text" v-model="fileName" placeholder="Enter file name" />
-    <button @click="downloadFile">Download</button>
-  </div>
-</template>
 
-<script>
-import axios from 'axios';
-
-export default {
-  data() {
-    return {
-      fileName: '',
-    };
-  },
-  methods: {
-    async downloadFile() {
-      if (!this.fileName) {
-        alert('Please enter a file name');
-        return;
-      }
-
-      try {
-        const response = await axios.get(`/document/download/${this.fileName}`, {
-          responseType: 'blob',
-        });
-
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', this.fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      } catch (error) {
-        console.error('File download failed', error);
-        alert('File download failed');
-      }
-    },
-  },
-};
-*
-* // main.js or a similar entry point
-import axios from 'axios';
-
-axios.defaults.baseURL = 'http://localhost:8086'; // Adjust the base URL as needed
-</script>
-    * */
-    @GetMapping("/download/")
-    @ResponseBody
-    public ResponseEntity<Resource> downloadFile(@RequestBody User user, @RequestBody Document document) {
+    @GetMapping("/download/{userid}/{documentid}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String userid, @PathVariable Integer documentid) {
+        //判空
+        if (userid == null || documentid == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         //先判断用户是否有权限下载文件
-        document = documentService.getById(document.getId());
+        Document document = documentService.getById(documentid);
+
         if(document == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        User user = userService.getById(userid);
+        if (user == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         if (!document.getPermission()){
-            if (!document.getVisibleUserId().contains(user.getId()) && !document.getVisibleDepartmentId().contains(user.getDepartmentId().toString())){
+            //判空
+            if (document.getVisibleUserId() == null || document.getVisibleDepartmentId() == null){
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
+            if (user.getDepartmentId()!=null){
+                if (!document.getVisibleUserId().contains(user.getId()) && !document.getVisibleDepartmentId().contains(user.getDepartmentId().toString())){
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+            }else{
+                if (!document.getVisibleUserId().contains(user.getId())){
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+            }
+
         }
-
-
-
         Path filePath = Paths.get( uploadPath, document.getUrl()).toAbsolutePath();
         File file = filePath.toFile();
         if (!file.exists()) {
@@ -197,7 +111,8 @@ axios.defaults.baseURL = 'http://localhost:8086'; // Adjust the base URL as need
 
         Resource resource = new FileSystemResource(file);
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.getUrl() + "\"");
+
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
@@ -213,6 +128,19 @@ axios.defaults.baseURL = 'http://localhost:8086'; // Adjust the base URL as need
         return documentService.list();
     }
 
+    @GetMapping("/user/{id}")
+    @ResponseBody
+    public List<Document> getUserAllDocuments(@PathVariable String id) {
+        //获取当前用户
+        User user = userService.getById(id);
+        List<Document> documents = documentService.list();
+        //如果document权限为公开,或者document的作者为当前用户,或者document可查看的权限部门id包含当前用户的部门id,或者document可查看的用户id包含当前用户的id, 放行,
+        //否则,移除
+        documents.removeIf(document -> !document.getPermission() && !document.getAuthor().equals(id) && (user.getDepartmentId() == null || !document.getVisibleDepartmentId().contains(user.getDepartmentId().toString())) && !document.getVisibleUserId().contains(id));
+
+        return documents;
+    }
+
     @PutMapping("/{id}")
     @ResponseBody
     public Boolean updateDocument(@PathVariable Integer id, @RequestBody Document document) {
@@ -220,10 +148,33 @@ axios.defaults.baseURL = 'http://localhost:8086'; // Adjust the base URL as need
         return documentService.updateById(document);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userid}/{documentid}")
     @ResponseBody
-    public Boolean deleteDocument(@PathVariable Integer id) {
-        return documentService.removeById(id);
+    public Boolean deleteDocument(@PathVariable String userid, @PathVariable Integer documentid) {
+        //获取document
+        Document document = documentService.getById(documentid);
+        //判空
+        if (document == null){
+            return false;
+        }
+        //获取当前用户
+        User user = userService.getById(userid);
+        //判空
+        if (user == null){
+            return false;
+        }
+        //如果document的作者不是当前用户,返回false
+        if (!document.getAuthor().equals(userid)){
+            return false;
+        }
+        //获取文件路径
+        Path filePath = Paths.get( uploadPath, document.getUrl()).toAbsolutePath();
+        //删除文件
+        File file = filePath.toFile();
+        if (file.exists()) {
+            file.delete();
+        }
+        return documentService.removeById(documentid);
     }
     
 }

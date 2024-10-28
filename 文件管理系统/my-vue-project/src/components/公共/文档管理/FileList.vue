@@ -4,15 +4,20 @@
             <!-- Breadcrumb-->
             <div class="row pt-2 pb-2">
                 <div class="col-sm-9">
-                    <h4 class="page-title" v-show="!user?.UserType">我的文档</h4>
-                    <h4 class="page-title" v-show="user?.UserType">用户文档</h4>
+                    <h4 class="page-title" v-show="!user?.type">我的文档</h4>
+                    <h4 class="page-title" v-show="user?.type">用户文档</h4>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">文档管理</li>
-                        <li class="breadcrumb-item active" aria-current="page" v-show="!user?.UserType">我的文档</li>
-                        <li class="breadcrumb-item active" aria-current="page" v-show="user?.UserType">用户文档</li>
+                        <li class="breadcrumb-item active" aria-current="page" v-show="!user?.type">我的文档</li>
+                        <li class="breadcrumb-item active" aria-current="page" v-show="user?.type">用户文档</li>
                     </ol>
                 </div>
             </div>
+            <button type="button" class="btn btn-outline-info waves-effect waves-light m-1"
+                @click="updatelist">刷新列表</button>
+
+            <file-edit :initialDocument="initialDocument" v-if="initialDocument.id != ''" @data-back="handleDataBack" />
+
             <!-- End Breadcrumb-->
             <div class="row">
                 <div class="col-lg-12">
@@ -23,54 +28,7 @@
 
                             <div class="table-responsive">
                                 <table id="example" class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>序号</th>
-                                            <th>文档名称</th>
-                                            <th>上传用户</th>
-                                            <th>文档分类</th>
-                                            <th>上线时间</th>
-                                            <th>查看次数</th>
-                                            <th>文档权限</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>diahjaoh.pdf</td>
-                                            <td>user</td>
-                                            <td>小说</td>
-                                            <td>2011/04/25</td>
-                                            <td>50</td>
-                                            <td>全部可见</td>
-                                            <td>修改权限/修改文件/预览文件/删除文件</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>diahssjaoh.pdf</td>
-                                            <td>user</td>
-                                            <td>小说</td>
-                                            <td>2012/04/25</td>
-                                            <td>10</td>
-                                            <td>全部可见</td>
-                                            <td>修改权限/修改文件/预览文件/删除文件</td>
-                                        </tr>
 
-
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th>序号</th>
-                                            <th>文档名称</th>
-                                            <th>上传用户</th>
-                                            <th>文档分类</th>
-                                            <th>上线时间</th>
-                                            <th>查看次数</th>
-                                            <th>文档权限</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -84,6 +42,7 @@
     </div>
 </template>
 <script scoped>
+import axios from 'axios';
 import $ from 'jquery';
 import 'datatables.net-bs4';
 import 'datatables.net-buttons-bs4';
@@ -92,9 +51,8 @@ import 'datatables.net-buttons/js/buttons.print';
 import 'datatables.net-buttons/js/buttons.colVis';
 import 'jszip';
 import pdfMake from 'pdfmake-support-chinese-fonts/pdfmake.min';
-
 import pdfFonts from 'pdfmake-support-chinese-fonts/vfs_fonts';
-
+import FileEdit from './FileEdit.vue';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 pdfMake.fonts = {
@@ -113,64 +71,295 @@ pdfMake.fonts = {
 };
 
 export default {
+    components: {
+        FileEdit
+    },
     data() {
         return {
-            once: true,
-            user: null
+            user: null,
+            documentlist: [], // 初始化为空数组
+            update: false,
+            initialDocument: {
+                id: '',
+                name: '',
+                category: '',
+                keyword: '',
+                url: '',
+                permission: false,
+                visibleDepartmentId: [],
+                visibleUserId: []
+            }
         }
     },
-    mounted() {
-        this.user = JSON.parse(localStorage.getItem('user'));
-        console.log('User get from localStorage in PersonInfo:', this.user);
-        if (this.once) {
-            var table = $('#example').DataTable({
-                dom: '<"top"l<"row"<"col-sm-6 text-left"f><"col-sm-6 text-right"B>>rt<"bottom"ip><"clear">',
-                buttons: [
-                    'copy', 'csv', 'excel', {
-                        extend: 'pdfHtml5',
-                        text: 'PDF',
-                        customize: function (doc) {
-                            doc.defaultStyle = {
-                                font: 'fangzhen' // 使用支持中文的字体
-                            };
+
+    watch: {
+    },
+    methods: {
+        handleDataBack(data) {
+            console.log('回传的数据:', data);
+            // 处理回传的数据
+            if (data) {
+                this.initialDocument.id = '';
+            }
+        },
+        editData(data) {
+            // 弹出对话框，允许用户编辑数据
+            const newData = prompt("编辑数据:", JSON.stringify(data));
+            if (newData) {
+                // 处理编辑后的数据
+                this.$emit('update-data', JSON.parse(newData));
+            }
+        },
+        downloadData(data) {
+            // 创建一个隐藏的a标签，触发下载
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        },
+        deleteData(data) {
+            // 确认删除操作
+            if (confirm("确定要删除吗?")) {
+                this.$emit('delete-data', data);
+            }
+        },
+        async updatelist() {
+            await this.destoryDataTable();
+            this.user = JSON.parse(localStorage.getItem('user'));
+            var url = '';
+            if (this.user.type) {
+                url = 'http://localhost:8086/document/';
+            }
+            else {
+                url = 'http://localhost:8086/document/user/' + this.user.id;
+            }
+
+            this.initializeDataTable(url);
+
+        },
+        fetchData() {
+            try {
+                const res = axios.get('http://localhost:8086/document/');
+                if (res.status === 200) {
+                    console.log('http://localhost:8086/document/');
+                    console.log('this.documentlist = res.data;');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        },
+        convertTo2DArray(data) {
+            return data.map((item, index) => [
+                index + 1, // 添加索引列
+                item.id,
+                item.name,
+                item.url,
+                item.author,
+                item.category,
+                item.uploadTime,
+                item.viewCount,
+                item.permission ? '全部可见' : '部分可见',
+                item.visibleDepartmentId,
+                item.visibleUserId,
+                item.id
+            ]);
+        },
+        async initializeDataTable(url) {
+            console.log("initializeDataTable");
+            var documentlist2d = null;
+            try {
+                if (!$.fn.DataTable.isDataTable('#example')) {
+
+
+                    try {
+                        this.user = JSON.parse(localStorage.getItem('user'));
+                        const promise = await axios.get(url);
+                        if (promise.status === 200) {
+                            console.log(promise.data);
+                            documentlist2d = this.convertTo2DArray(promise.data);
+                        } else {
+                            console.log(promise);
+                            return;
                         }
-                    }, 'print', 'colvis'
-                ]
+                    } catch (err) {
+                        console.error(err);
+                        return;
+                    }
+
+                    this.$nextTick(() => {
+                        console.log(" var table = $('#example').DataTable({");
+                        var table = $('#example').DataTable({
+                            dom: '<"top"l<"row"<"col-sm-6 text-left"f><"col-sm-6 text-right"B>>rt<"bottom"<"row"<"col-sm-12 dt-info-container"i>><"row"<"col-sm-12 dt-paging-container"p>>><"clear">',
+                            buttons: [
+                                {
+                                    extend: 'copy',
+                                    text: '复制'
+                                },
+                                {
+                                    extend: 'csv',
+                                    text: '导出 CSV'
+                                },
+                                {
+                                    extend: 'excel',
+                                    text: '导出 Excel'
+                                },
+                                {
+                                    extend: 'pdfHtml5',
+                                    text: '导出 PDF',
+                                    customize: function (doc) {
+                                        doc.defaultStyle = {
+                                            font: 'fangzhen' // 使用支持中文的字体
+                                        };
+                                    }
+                                },
+                                {
+                                    extend: 'print',
+                                    text: '打印'
+                                },
+                                {
+                                    extend: 'colvis',
+                                    text: '列可见性'
+                                }
+                            ],
+                            data: documentlist2d,
+                            columns: [
+                                { title: '序号' },
+                                { title: '文档id' },
+                                { title: '文档名称' },
+                                { title: '文件名称' },
+                                { title: '上传用户' },
+                                { title: '文档分类' },
+                                { title: '上线时间' },
+                                { title: '查看次数' },
+                                { title: '文档权限' },
+                                { title: '可见部门id' },
+                                { title: '可见用户id' },
+
+                                {
+                                    title: '操作',
+                                    render: function (data) {
+                                        return `
+                                        <button class="edit-btn btn btn-outline-primary buttons-copy buttons-html5" value="${data} " >修改</button>
+                                        <button class="download-btn btn btn-outline-primary buttons-copy buttons-html5" value="${data}">下载</button>
+                                        <button class="delete-btn btn btn-outline-primary buttons-copy buttons-html5" value="${data}">删除</button>
+                                        `;
+                                    }
+                                }
+                            ],
+                            language: {
+                                search: "搜索:",
+                                lengthMenu: "每页显示 _MENU_ 条记录",
+                                info: "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                                paginate: {
+                                    first: "首页",
+                                    last: "末页",
+                                    next: "下一页",
+                                    previous: "上一页"
+                                }
+                            }
+                        });
+
+                        // 绑定编辑、下载和删除按钮的事件
+                        $('#example tbody').on('click', '.edit-btn', (event) => {
+                            var data = $(event.currentTarget).val();
+                            console.log('编辑数据:', data);
+                            console.log('数据:', this.initialDocument);
+                            axios.get('http://localhost:8086/document/' + data).then(res => {
+                                this.initialDocument = res.data;
+                            });
+
+                        });
+
+                        $('#example tbody').on('click', '.download-btn', async (event) => {
+                            var user = JSON.parse(localStorage.getItem('user'));
+                            var documentId = $(event.currentTarget).val();
+                            // 创建一个<a>link标签
+                            var a = document.createElement('a');
+                            // 设置下载url
+                            a.href = 'http://localhost:8086/document/download/' + user.id + '/' + documentId;
+                            // 点击下载
+                            a.click();
+                        });
+
+                        $('#example tbody').off('click', '.delete-btn').on('click', '.delete-btn', (event) => {
+                            var user = JSON.parse(localStorage.getItem('user'));
+                            axios.delete('http://localhost:8086/document/' + user.id + '/' + $(event.currentTarget).val()).then(res => {
+                                if (res.data) {
+                                    console.log('删除成功');
+                                    alert('删除成功');
+                                } else {
+                                    console.error('删除失败');
+                                    alert('删除失败,你无权删除该文档或已删除未刷新');
+                                }
+                            });
+                        });
+
+
+                        console.log("table.buttons().container().appendTo(#example_wrapper.col-md-6:eq(0));");
+                        table
+                            .buttons()
+                            .container()
+                            .appendTo("#example_wrapper .col-md-6:eq(0)");
+
+                        // 为所有按钮元素添加样式
+                        console.log("const buttons = this.$el.querySelectorAll('.table-responsive button');");
+                        const buttons = this.$el.querySelectorAll('.table-responsive button');
+                        buttons.forEach(button => {
+                            button.classList.add('btn', 'btn-outline-primary', 'buttons-copy', 'buttons-html5');
+                        });
+                        console.log("$('.dt-search').css('text-align', 'left'); this.$el.querySelector('.dt-length').classList.add('col-md-1');$('.dt-length').css('padding-left', '0');$('.text-right').css('padding-top', '20px');");
+                        // 使用jQuery动态调整底部元素的样式
+                        $('.dt-info-container').css({
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            paddingRight: '20px'
+                        });
+                        $('.dt-paging-container').css({
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            paddingRight: '20px'
+                        });
+                        console.log("-----------initializeDataTable END-----------");
+                    });
+                }
+            } catch (error) {
+                console.error('回调函数内部发生错误:', error);
+            }
+
+        },
+        async destoryDataTable() {
+
+            this.$nextTick(() => {
+                if ($.fn.DataTable.isDataTable('#example')) {
+                    console.log("destoryDataTable");
+                    $('#example').DataTable().destroy();
+                }
             });
-            table
-                .buttons()
-                .container()
-                .appendTo("#example_wrapper .col-md-6:eq(0)");
-            this.once = false;
-            // 为所有按钮元素添加样式
-            const buttons = this.$el.querySelectorAll('.table-responsive button');
-            buttons.forEach(button => {
-                button.classList.add('btn', 'btn-outline-primary', 'buttons-copy', 'buttons-html5');
-            });
-
-            // 使用 jQuery 选择所有具有 .dt-search 类的元素
-            $('.dt-search').css('text-align', 'left');
-            this.$el.querySelector('.dt-length').classList.add('col-md-1');
-            $('.dt-length').css('padding-left', '0');
-            $('.text-right').css('padding-top', '20px');
-
-
         }
 
-    },
-    beforeUnmount() {
-
-        // 可以在这里执行清理操作
-    },
-    unmounted() {
 
     }
-
 }
 </script>
 <style scoped>
 /* 样式 */
 .dt-search {
     text-align: left;
+}
+
+.bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.dt-info {
+    margin-right: 20px;
+    /* 可根据需要调整间距 */
 }
 </style>
