@@ -11,6 +11,9 @@
                     </ol>
                 </div>
             </div>
+            <button type="button" class="btn btn-outline-info waves-effect waves-light m-1"
+                @click="cancel">取消修改</button>
+
             <!-- End Breadcrumb-->
             <div class="row justify-content-center">
                 <div class="card col-lg-12">
@@ -138,6 +141,9 @@ export default {
         this.getUsers();
     },
     methods: {
+        cancel() {
+            this.$emit('data-back', true);
+        },
         updatePermission(event) {
             const value = event.target.value;
             this.departmentvisible = value === '指定部门可见';
@@ -169,6 +175,7 @@ export default {
             });
         },
         submit() {
+
             if (!this.validateForm()) {
                 alert('请填写完整的文档信息');
                 return;
@@ -180,7 +187,7 @@ export default {
                 axios.post('http://localhost:8086/document/upload/file', formData)
                     .then(res => {
                         if (res.data) {
-                            return axios.put('http://localhost:8086/document/' + this.document.id, this.document);
+                            return axios.put('http://localhost:8086/document/' + this.user.id + '/' + this.document.id, this.document);
                         } else {
                             throw new Error('上传的文件名称重复,请更改文件名');
                         }
@@ -193,18 +200,24 @@ export default {
 
                     })
                     .catch(error => {
-                        alert(error.message || '更新失败');
+                        alert(error.message || '更新失败,你无权更改此文档');
                     });
             } else {
-                axios.put('http://localhost:8086/document/' + this.document.id, this.document)
+                axios.put('http://localhost:8086/document/' + this.user.id + '/' + this.document.id, this.document)
                     .then(res => {
-                        alert('更新成功');
-                        console.log(res.data);
-                        this.resetForm();
-                        this.$emit('data-back', true);
+                        if (res.data) {
+                            alert('更新成功');
+                        } else {
+                            throw new Error('更新失败,你无权更改此文档');
+                        }
+
                     })
                     .catch(error => {
-                        alert(error.message || '更新失败');
+                        alert(error.message || '更新失败,你无权更改此文档');
+                    })
+                    .finally(() => {
+                        this.resetForm();
+                        this.$emit('data-back', true);
                     });
             }
         },

@@ -22,6 +22,11 @@ public class DepartmentController {
 
     @PostMapping
     public Boolean createDepartment(@RequestBody Department department) {
+        //判断部门是否存在
+        if (departmentService.getById(department.getId()) != null) {
+            return false;
+        }
+
         return departmentService.save(department);
     }
 

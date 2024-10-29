@@ -4,18 +4,20 @@
             <!-- Breadcrumb-->
             <div class="row pt-2 pb-2">
                 <div class="col-sm-9">
-                    <h4 class="page-title">新增用户</h4>
+                    <h4 class="page-title">编辑用户</h4>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">用户管理</li>
-                        <li class="breadcrumb-item active" aria-current="page">新增用户</li>
+                        <li class="breadcrumb-item active" aria-current="page">编辑用户</li>
                     </ol>
                 </div>
             </div>
+            <button type="button" class="btn btn-outline-info waves-effect waves-light m-1"
+                @click="cancel">取消修改</button>
             <!-- End Breadcrumb-->
             <div class="row justify-content-center">
                 <div class="card col-lg-12">
                     <div class="card-body">
-                        <div class="card-title text-primary">新增用户</div>
+                        <div class="card-title text-primary">编辑用户</div>
                         <hr>
                         <form>
                             <div class="form-group">
@@ -35,6 +37,17 @@
                                 <input type="number" class="form-control" placeholder="填写用户手机号" v-model="user.phone">
                             </div>
                             <div class="form-group">
+                                <label>用户所在的部门</label>
+                                <select class="custom-select" v-model="user.departmentId" @change="updateDepartmentId">
+                                    <option v-for="department in departments" :key="department.id"
+                                        :value="department.id">
+                                        {{ department.name }}
+                                    </option>
+                                </select>
+                                <div>已选择部门:</div>
+                                <div>{{ user.departmentId }}{{ user.departmentName }}</div>
+                            </div>
+                            <div class="form-group">
                                 <label>是否设为管理员</label>
                                 <select class="form-control" v-model="user.type">
                                     <option value="true">是</option>
@@ -52,7 +65,7 @@
                             </select>
                             <br>
                             <div class="form-group">
-                                <button type="button" @click="register"
+                                <button type="button" @click="submit"
                                     class="btn btn-primary shadow-primary px-5 col-lg-12">
                                     <i class="icon-lock"></i>提交</button>
                             </div>
@@ -67,26 +80,42 @@
 
     </div>
 </template>
-<script>
+<script scoped>
 import axios from 'axios';
 export default {
+    props: {
+        initialUser: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
+            departments: [],
             // data
             user: {
-                id: '',
-                password: '123456',
-                username: '',
-                phone: '',
-                email: '',
-                gender: '',
-                creator: '管理员',
-                userType: false
+                id: this.initialUser.id || '',
+                password: this.initialUser.password || '',
+                username: this.initialUser.username || '',
+                phone: this.initialUser.phone || '',
+                email: this.initialUser.email || '',
+                gender: this.initialUser.gender || '',
+                type: this.initialUser.type || 'false',
+                departmentId: this.initialUser.departmentId || '',
+                departmentName: this.initialUser.departmentName || '',
+                status: this.initialUser.status || 'true'
             },
             URL: 'http://localhost:8086/user/'
         }
     },
     methods: {
+        cancel() {
+            this.$emit('data-back2', true);
+        },
+        updateDepartmentId(event) {
+            this.user.departmentId = event.target.value;
+            this.user.departmentName = this.departments.find(department => department.id == this.user.departmentId).name;
+        },
         checknullvalue() {
             if (this.user.id == '' || this.user.password == '' || this.user.username == '' || this.user.phone == '') {
                 alert('请填写完整信息');
@@ -94,29 +123,36 @@ export default {
             }
             return true;
         },
+        getDepartments() {
+            axios.get('http://localhost:8086/department/').then(res => {
+                this.departments = res.data;
+            });
+        },
         // methods
-        register() {
+        submit() {
+
             var check = this.checknullvalue();
+
             if (!check) {
                 return;
             }
-            // register
-            // console.log('register');
-            // console.log(this.user);
-            axios.post(this.URL, this.user).then(res => {
-                // console.log(res);
+            this.URL = this.URL + this.user.id;
+            axios.put(this.URL, this.user).then(res => {
+
                 if (res.data != '') {
-                    // console.log(res.data);
-                    // this.$router.push('/user/list');
-                    alert('新增用户成功');
+                    alert('编辑用户成功');
+                    this.$emit('data-back2', true);
                 } else {
-                    alert('新增用户失败,请检查用户ID是否已存在');
+                    alert('编辑用户失败,请检查用户ID是否已存在');
                 }
             }).catch(err => {
                 console.error(err);
             });
 
         }
+    },
+    mounted() {
+        this.getDepartments();
     }
 }
 </script>

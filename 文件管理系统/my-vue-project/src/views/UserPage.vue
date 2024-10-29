@@ -6,8 +6,11 @@
         <WelcomePanel v-show="currentComponent === 'WelcomePanel'" />
         <FileUpload v-show="currentComponent === 'FileUpload'" />
         <FileList v-show="currentComponent === 'FileList'" />
-
-
+        <AddUser v-show="currentComponent === 'AddUser'" />
+        <UserList v-show="currentComponent === 'UserList'" />
+        <DepartmentList v-show="currentComponent === 'DepartmentList'" />
+        <AddDepartment v-show="currentComponent === 'AddDepartment'" />
+        <PersonInfo v-show="currentComponent === 'PersonInfo'" />
         <!-- <FileUpload v-show="currentComponent === 'FileUpload'" />
         <FileList v-show="currentComponent === 'FileList'" />
         <RecordList v-show="currentComponent === 'RecordList'" />
@@ -30,13 +33,18 @@
     </div>
 
 </template>
-<script>
+<script scoped>
 
 import SideNav from '@/components/公共/SideNav.vue';
 import NavHeader from '@/components/公共/NavHeader.vue';
 import WelcomePanel from '@/components/公共/WelcomePanel.vue';
 import FileUpload from '@/components/公共/文档管理/FileUpload.vue';
 import FileList from '@/components/公共/文档管理/FileList.vue';
+import UserList from '@/components/管理员/用户管理/UserList.vue';
+import AddUser from '@/components/管理员/用户管理/AddUser.vue';
+import DepartmentList from '@/components/管理员/部门管理/DepartmentList.vue';
+import AddDepartment from '@/components/管理员/部门管理/AddDepartment.vue';
+import PersonInfo from '@/components/公共/PersonInfo.vue';
 export default {
     components: {
         SideNav,
@@ -44,6 +52,12 @@ export default {
         WelcomePanel,
         FileUpload,
         FileList,
+        UserList,
+        AddUser,
+        DepartmentList,
+        AddDepartment,
+        PersonInfo,
+
         // RecordList,
         // RecordListUploadList,
         // RecordListDownLoadList,
@@ -54,8 +68,6 @@ export default {
         // AddRole,
         // AddRoleUser,
         // PermissionList,
-        // UserList,
-        // AddUser,
         // DepartmentList,
         // AddDepartment,
         // UserDepartmentList,

@@ -14,6 +14,8 @@
             <!-- End Breadcrumb-->
             <button type="button" class="btn btn-outline-info waves-effect waves-light m-1"
                 @click="updatelist">刷新列表</button>
+
+            <edit-user :initialUser="initialUser" v-if="initialUser.id != ''" @data-back2="handleDataBack2"></edit-user>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
@@ -45,7 +47,7 @@ import 'datatables.net-buttons/js/buttons.colVis';
 import 'jszip';
 import pdfMake from 'pdfmake-support-chinese-fonts/pdfmake.min';
 import pdfFonts from 'pdfmake-support-chinese-fonts/vfs_fonts';
-
+import EditUser from './EditUser.vue';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 pdfMake.fonts = {
@@ -65,7 +67,7 @@ pdfMake.fonts = {
 
 export default {
     components: {
-
+        EditUser
     },
     data() {
         return {
@@ -73,12 +75,31 @@ export default {
             userlist: [], // 初始化为空数组
             ready: false, // 初始化为 false,
             update: false,
+            initialUser: {
+                id: '',
+                username: '',
+                departmentId: '',
+                departmentName: '',
+                phone: '',
+                email: '',
+                gender: '',
+                status: '', // 根据状态替换值
+                password: '',
+                type: '' // 根据状态替换值,
+            }
         }
     },
 
     watch: {
     },
     methods: {
+        handleDataBack2(data) {
+            console.log('回传的数据:', data);
+            // 处理回传的数据
+            if (data) {
+                this.initialUser.id = '';
+            }
+        },
         async updatelist() {
             await this.destoryDataTable();
             this.initializeDataTable();
@@ -100,6 +121,8 @@ export default {
                 index + 1, // 添加索引列
                 item.id,
                 item.username,
+                item.departmentId,
+                item.departmentName,
                 item.phone,
                 item.email,
                 item.gender,
@@ -135,21 +158,43 @@ export default {
                         var table = $('#example9').DataTable({
                             dom: '<"top"l<"row"<"col-sm-6 text-left"f><"col-sm-6 text-right"B>>rt<"bottom"<"row"<"col-sm-12 dt-info-container"i>><"row"<"col-sm-12 dt-paging-container"p>>><"clear">',
                             buttons: [
-                                'copy', 'csv', 'excel', {
+                                {
+                                    extend: 'copy',
+                                    text: '复制'
+                                },
+                                {
+                                    extend: 'csv',
+                                    text: '导出 CSV'
+                                },
+                                {
+                                    extend: 'excel',
+                                    text: '导出 Excel'
+                                },
+                                {
                                     extend: 'pdfHtml5',
-                                    text: 'PDF',
+                                    text: '导出 PDF',
                                     customize: function (doc) {
                                         doc.defaultStyle = {
                                             font: 'fangzhen' // 使用支持中文的字体
                                         };
                                     }
-                                }, 'print', 'colvis'
+                                },
+                                {
+                                    extend: 'print',
+                                    text: '打印'
+                                },
+                                {
+                                    extend: 'colvis',
+                                    text: '列可见性'
+                                }
                             ],
                             data: userlist2d,
                             columns: [
                                 { title: '序号' },
                                 { title: '用户ID' },
                                 { title: '用户姓名' },
+                                { title: '部门ID' },
+                                { title: '部门姓名' },
                                 { title: '用户手机号' },
                                 { title: '用户邮箱' },
                                 { title: '用户性别' },
@@ -179,21 +224,29 @@ export default {
                             }
                         });
 
-                        // 绑定编辑和删除按钮的事件
-                        $('#example9 tbody').on('click', '.edit-btn', function () {
-                            var id = $(this).val();
-                            console.log(id);
+                        // 绑定编辑、下载和删除按钮的事件
+                        $('#example9 tbody').on('click', '.edit-btn', (event) => {
+                            var data = $(event.currentTarget).val();
+                            console.log('编辑数据:', data);
+                            console.log('数据:', this.initialuser);
+                            axios.get('http://localhost:8086/user/' + data).then(res => {
+                                this.initialUser = res.data;
+                            });
 
-                            // 在这里添加编辑逻辑
                         });
 
-
-
-                        $('#example9 tbody').on('click', '.delete-btn', function () {
-                            var id = $(this).val();
-                            console.log(id);
-                            // 在这里添加删除逻辑
+                        $('#example9 tbody').off('click', '.delete-btn').on('click', '.delete-btn', (event) => {
+                            axios.delete('http://localhost:8086/user/' + $(event.currentTarget).val()).then(res => {
+                                if (res.data) {
+                                    console.log('删除成功');
+                                    alert('删除成功');
+                                } else {
+                                    console.error('删除失败');
+                                    alert('删除失败,你无权删除该文档或已删除未刷新');
+                                }
+                            });
                         });
+
                         console.log("table.buttons().container().appendTo(#example_wrapper.col-md-6:eq(0));");
                         table
                             .buttons()

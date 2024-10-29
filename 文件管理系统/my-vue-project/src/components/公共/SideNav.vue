@@ -117,9 +117,6 @@
                             查看部门</a></li>
                     <li><a href="#" @click="selectOption('adddepartment')"><i class="zmdi zmdi-star-outline"></i>
                             新增部门</a></li>
-                    <li><a href="#" @click="selectOption('userdepartment')"><i class="zmdi zmdi-star-outline"></i>
-                            分配用户部门</a></li>
-
                 </ul>
             </li>
             <li>
@@ -147,7 +144,7 @@
 
 </template>
 
-<script>
+<script scoped>
 
 export default {
     components: {

@@ -31,6 +31,17 @@
                                 <input type="text" class="form-control" placeholder="填写用户姓名" v-model="user.username">
                             </div>
                             <div class="form-group">
+                                <label>用户所在的部门</label>
+                                <select class="custom-select" v-model="user.departmentId" @change="updateDepartmentId">
+                                    <option v-for="department in departments" :key="department.id"
+                                        :value="department.id">
+                                        {{ department.name }}
+                                    </option>
+                                </select>
+                                <div>已选择部门:</div>
+                                <div>{{ user.departmentId }}{{ user.departmentName }}</div>
+                            </div>
+                            <div class="form-group">
                                 <label>用户手机号</label>
                                 <input type="number" class="form-control" placeholder="填写用户手机号" v-model="user.phone">
                             </div>
@@ -67,11 +78,12 @@
 
     </div>
 </template>
-<script>
+<script scoped>
 import axios from 'axios';
 export default {
     data() {
         return {
+            departments: [],
             // data
             user: {
                 id: '',
@@ -80,6 +92,8 @@ export default {
                 phone: '',
                 email: '',
                 gender: '',
+                departmentId: '',
+                departmentName: '',
                 creator: '管理员',
                 userType: false
             },
@@ -87,6 +101,14 @@ export default {
         }
     },
     methods: {
+        updateDepartmentId() {
+            this.user.departmentName = this.departments.find(department => department.id == this.user.departmentId).name;
+        },
+        getDepartments() {
+            axios.get('http://localhost:8086/department/').then(res => {
+                this.departments = res.data;
+            });
+        },
         checknullvalue() {
             if (this.user.id == '' || this.user.password == '' || this.user.username == '' || this.user.phone == '') {
                 alert('请填写完整信息');
@@ -100,14 +122,10 @@ export default {
             if (!check) {
                 return;
             }
-            // register
-            // console.log('register');
-            // console.log(this.user);
+
             axios.post(this.URL, this.user).then(res => {
                 // console.log(res);
                 if (res.data != '') {
-                    // console.log(res.data);
-                    // this.$router.push('/user/list');
                     alert('新增用户成功');
                 } else {
                     alert('新增用户失败,请检查用户ID是否已存在');
@@ -117,6 +135,9 @@ export default {
             });
 
         }
+    },
+    mounted() {
+        this.getDepartments();
     }
 }
 </script>

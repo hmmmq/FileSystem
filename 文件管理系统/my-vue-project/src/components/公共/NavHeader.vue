@@ -43,7 +43,7 @@
         </nav>
     </header>
 </template>
-<script>
+<script scoped>
 
 export default {
     data() {

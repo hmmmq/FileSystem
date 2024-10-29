@@ -232,7 +232,7 @@ export default {
                                 { title: '文件名称' },
                                 { title: '上传用户' },
                                 { title: '文档分类' },
-                                { title: '上线时间' },
+                                { title: '上传时间' },
                                 { title: '查看次数' },
                                 { title: '文档权限' },
                                 { title: '可见部门id' },

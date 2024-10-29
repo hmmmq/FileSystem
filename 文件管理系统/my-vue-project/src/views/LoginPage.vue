@@ -9,7 +9,7 @@
 
     </div>
 </template>
-<script>
+<script scoped>
 import LoginForm from '@/components/公共/LoginForm.vue';
 
 export default {

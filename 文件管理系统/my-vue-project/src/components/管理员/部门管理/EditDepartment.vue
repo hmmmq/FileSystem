@@ -4,10 +4,10 @@
             <!-- Breadcrumb-->
             <div class="row pt-2 pb-2">
                 <div class="col-sm-9">
-                    <h4 class="page-title">添加部门</h4>
+                    <h4 class="page-title">编辑部门</h4>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">部门管理</li>
-                        <li class="breadcrumb-item active" aria-current="page">添加部门</li>
+                        <li class="breadcrumb-item active" aria-current="page">编辑部门</li>
                     </ol>
                 </div>
             </div>
@@ -15,7 +15,7 @@
             <div class="row justify-content-center">
                 <div class="card col-lg-12">
                     <div class="card-body">
-                        <div class="card-title text-primary">添加部门</div>
+                        <div class="card-title text-primary">编辑部门</div>
                         <hr>
                         <form @submit.prevent="submit">
                             <div class="form-group">
@@ -32,7 +32,7 @@
                             </div>
                             <br>
                             <div class="form-group">
-                                <button @click="add" class="btn btn-primary shadow-primary px-5 col-lg-12"><i
+                                <button type="submit" class="btn btn-primary shadow-primary px-5 col-lg-12"><i
                                         class="icon-lock"></i>提交</button>
                             </div>
                         </form>
@@ -49,21 +49,30 @@
 <script scoped>
 import axios from 'axios';
 export default {
+    props: {
+        initialDepartment: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
             // data
             department: {
-                id: '',
-                name: '',
-                status: true,
-                parentName: '',
-                parentId: '',
-                amount: '',
+                id: this.initialDepartment.id || '',
+                name: this.initialDepartment.name || '',
+                status: this.initialDepartment.status || '',
+                parentName: this.initialDepartment.parentName || '',
+                parentId: this.initialDepartment.parentId || '',
+                amount: this.initialDepartment.amount || '',
             },
             URL: 'http://localhost:8086/department/'
         }
     },
     methods: {
+        cancel() {
+            this.$emit('data-back3', true);
+        },
 
         checknullvalue() {
             if (this.department.id == '' || this.department.name == '' || this.department.amount == '') {
@@ -74,21 +83,21 @@ export default {
         },
 
         // methods
-        add(event) {
+        submit(event) {
             event.preventDefault(); // 阻止默认的表单提交行为
             var check = this.checknullvalue();
 
             if (!check) {
                 return;
             }
-
-            axios.post(this.URL, this.department).then(res => {
+            this.URL = this.URL + this.department.id;
+            axios.put(this.URL, this.department).then(res => {
 
                 if (res.data != '') {
-                    alert('添加部门成功');
-
+                    alert('编辑部门成功');
+                    this.$emit('data-back3', true);
                 } else {
-                    alert('添加部门失败,请检查部门ID是否已存在');
+                    alert('编辑部门失败,请检查部门ID是否已存在');
                 }
             }).catch(err => {
                 console.error(err);

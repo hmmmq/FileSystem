@@ -141,10 +141,28 @@ public class DocumentController {
         return documents;
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{userid}/{documentid}")
     @ResponseBody
-    public Boolean updateDocument(@PathVariable Integer id, @RequestBody Document document) {
-        document.setId(id);
+    public Boolean updateDocument(@PathVariable String userid,@PathVariable Integer documentid, @RequestBody Document document) {
+        //判空
+        if (document == null || userid == null || documentid == null){
+            return false;
+        }
+
+        //权限检查
+        User user = userService.getById(userid);
+        if (user == null){
+            return false;
+        }
+        Document oldDocument = documentService.getById(documentid);
+        if (oldDocument == null){
+            return false;
+        }
+        if (!oldDocument.getAuthor().equals(userid)){
+            return false;
+        }
+
+        document.setId(documentid);
         return documentService.updateById(document);
     }
 
