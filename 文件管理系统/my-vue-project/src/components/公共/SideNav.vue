@@ -62,7 +62,7 @@
                 </ul>
 
             </li>
-            <li v-if="user?.type">
+            <!-- <li v-if="user?.type">
                 <a href="#" class="waves-effect">
                     <i class="zmdi zmdi-chart"></i><span>角色管理</span>
                     <i class="fa fa-angle-left float-right"></i>
@@ -78,8 +78,8 @@
                             分配用户角色</a></li>
 
                 </ul>
-            </li>
-            <li v-if="user?.type">
+            </li> -->
+            <!-- <li v-if="user?.type">
                 <a href="#" class="waves-effect">
                     <i class="zmdi zmdi-cloud-done"></i><span>权限管理</span><i class="fa fa-angle-left float-right"></i>
                 </a>
@@ -89,7 +89,7 @@
                     </li>
                 </ul>
 
-            </li>
+            </li> -->
 
 
             <li v-if="user?.type">

@@ -25,8 +25,8 @@
                                             src="http://127.0.0.1:8083/images/avatars/avatar-13.png" alt="user avatar">
                                     </div>
                                     <div class="media-body">
-                                        <h6 class="mt-2 user-title">{{ user?.UserName }}</h6>
-                                        <p class="user-subtitle">{{ user?.DepartmentName }}</p>
+                                        <h6 class="mt-2 user-title">{{ user?.username }}</h6>
+                                        <p class="user-subtitle">{{ user?.departmentName }}</p>
                                     </div>
                                 </div>
                             </a>
@@ -36,7 +36,7 @@
                         <li class="dropdown-item" @click="selectOption('personcentre')"><i
                                 class="icon-settings mr-2"></i> 个人中心</li>
                         <li class="dropdown-divider"></li>
-                        <li class="dropdown-item" @click="Logout"><i class="icon-power mr-2"></i> 登出</li>
+                        <li class="dropdown-item" @click="Logout"><i class="icon-power mr-2"></i> 退出</li>
                     </ul>
                 </li>
             </ul>
