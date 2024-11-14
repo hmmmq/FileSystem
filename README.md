@@ -1,7 +1,10 @@
 # FileSystem
 山东某厂的文件管理系统
+
 # 部署方案
 在一个主机上通过Docker部署完整的前后端和数据库，并通过局域网访问
+https://chatgpt.com/share/67361683-1c04-8003-9558-4e496ecff169
+https://chatgpt.com/c/67361489-b30c-8003-a55b-710223b0f2a9
 1. **准备 Docker Compose 文件：**
    使用 Docker Compose 来简化多个容器的部署。你可以在一个 `docker-compose.yml` 文件中定义所有四个容器（static-server, Vue, Spring Boot, MySQL）。
 
