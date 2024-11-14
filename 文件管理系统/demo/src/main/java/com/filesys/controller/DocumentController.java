@@ -1,13 +1,7 @@
 package com.filesys.controller;
 
-import com.filesys.entity.Document;
-import com.filesys.entity.Documentdownloadtime;
-import com.filesys.entity.Documentuploadtime;
-import com.filesys.entity.User;
-import com.filesys.service.IDocumentService;
-import com.filesys.service.IDocumentdownloadtimeService;
-import com.filesys.service.IDocumentuploadtimeService;
-import com.filesys.service.IUserService;
+import com.filesys.entity.*;
+import com.filesys.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -41,6 +35,9 @@ public class DocumentController {
     @Autowired
     private IDocumentuploadtimeService documentuploadtimeService;
 
+    @Autowired
+    private IDocumentviewtimeService documentviewtimeService;
+
 
     @Autowired
     private IUserService userService;
@@ -61,6 +58,15 @@ public class DocumentController {
         documentdownloadtime.setUserId(userId);
         documentdownloadtime.setUserName(userService.getById(userId).getUsername());
         documentdownloadtimeService.save(documentdownloadtime);
+    }
+
+    private void recordviewtime(Document document,String userId){
+        Documentviewtime documentviewtime = new Documentviewtime();
+        documentviewtime.setDocumentId(document.getId());
+        documentviewtime.setDocumentName(document.getName());
+        documentviewtime.setUserId(userId);
+        documentviewtime.setUserName(userService.getById(userId).getUsername());
+        documentviewtimeService.save(documentviewtime);
     }
 
     @PostMapping("/upload/file")
@@ -95,12 +101,90 @@ public class DocumentController {
     @PostMapping
     @ResponseBody
     public Boolean uploadFile(@RequestBody Document document) {
+        boolean save = documentService.save(document);
+        if(save){
+            recorduploadtime(document);
+            return  true;
+        }
 
-        recorduploadtime(document);
 
-        return documentService.save(document);
+        return false;
     }
 
+    @GetMapping("/view/{userid}/{documentid}")
+    public ResponseEntity<Resource> viewDocument(@PathVariable String userid, @PathVariable Integer documentid) {
+        // Validate input
+        if (userid == null || documentid == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        // Fetch the document
+        Document document = documentService.getById(documentid);
+        if (document == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Validate user permission
+        User user = userService.getById(userid);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+
+        if(!document.getAuthor().equals(userid)){
+
+        if (!document.getPermission()) {
+
+            if (document.getVisibleUserId() == null || document.getVisibleDepartmentId() == null) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
+            // Check if the user is allowed to view the document based on their department and user ID
+            if (user.getDepartmentId() != null) {
+                if (!document.getVisibleUserId().contains(user.getId()) && !document.getVisibleDepartmentId().contains(user.getDepartmentId().toString())) {
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+            } else {
+                if (!document.getVisibleUserId().contains(user.getId())) {
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+            }
+        }
+
+        }
+
+        // Get the file path
+        Path filePath = Paths.get(uploadPath, document.getUrl()).toAbsolutePath();
+        File file = filePath.toFile();
+        if (!file.exists()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Record the view time (you can implement a similar record-view-time method as you did with download)
+        // recordViewTime(document, userid);  // Optional if you want to track viewing time
+
+        // Serve the document as a resource
+        Resource resource = new FileSystemResource(file);
+        HttpHeaders headers = new HttpHeaders();
+
+        // Set the content type and disposition for inline display (browser will try to display it instead of downloading)
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"");
+
+        // Check the file type and set the appropriate content type
+        if (document.getUrl().endsWith(".pdf")) {
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+        } else if (document.getUrl().endsWith(".jpg") || document.getUrl().endsWith(".jpeg") || document.getUrl().endsWith(".png")) {
+            headers.add(HttpHeaders.CONTENT_TYPE, "image/jpeg");  // or "image/png" based on the file
+        } else {
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/octet-stream");  // Default to binary stream if unknown file type
+        }
+        recordviewtime(document,userid);
+        Integer viewCount = document.getViewCount();
+        viewCount++;
+        document.setViewCount(viewCount);
+        documentService.updateById(document);
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
 
 
 
@@ -120,6 +204,8 @@ public class DocumentController {
         if (user == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        if(!document.getAuthor().equals(userid)){
         if (!document.getPermission()){
             //判空
             if (document.getVisibleUserId() == null || document.getVisibleDepartmentId() == null){
@@ -135,7 +221,7 @@ public class DocumentController {
                 }
             }
 
-        }
+        }}
         Path filePath = Paths.get( uploadPath, document.getUrl()).toAbsolutePath();
         File file = filePath.toFile();
         if (!file.exists()) {

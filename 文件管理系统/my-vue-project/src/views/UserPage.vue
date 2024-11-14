@@ -11,11 +11,15 @@
         <DepartmentList v-show="currentComponent === 'DepartmentList'" />
         <AddDepartment v-show="currentComponent === 'AddDepartment'" />
         <PersonInfo v-show="currentComponent === 'PersonInfo'" />
+        <RecordListUploadList v-show="currentComponent === 'RecordListUploadList'" />
+        <RecordDownLoadList v-show="currentComponent === 'RecordDownLoadList'" />
+        <RecordList v-show="currentComponent === 'RecordList'" />
+
         <!-- <FileUpload v-show="currentComponent === 'FileUpload'" />
         <FileList v-show="currentComponent === 'FileList'" />
         <RecordList v-show="currentComponent === 'RecordList'" />
         <RecordListUploadList v-show="currentComponent === 'RecordListUploadList'" />
-        <RecordListDownLoadList v-show="currentComponent === 'RecordListDownLoadList'" />
+        <RecordDownLoadList v-show="currentComponent === 'RecordDownLoadList'" />
         <AppUpload v-show="currentComponent === 'AppUpload'" />
         <AppDownload v-show="currentComponent === 'AppDownload'" />
         <PersonInfo v-show="currentComponent === 'PersonInfo'" />
@@ -45,6 +49,9 @@ import AddUser from '@/components/管理员/用户管理/AddUser.vue';
 import DepartmentList from '@/components/管理员/部门管理/DepartmentList.vue';
 import AddDepartment from '@/components/管理员/部门管理/AddDepartment.vue';
 import PersonInfo from '@/components/公共/PersonInfo.vue';
+import RecordListUploadList from '@/components/公共/日志管理/RecordListUploadList.vue';
+import RecordDownLoadList from '@/components/公共/日志管理/RecordDownLoadList.vue';
+import RecordList from '@/components/公共/日志管理/RecordList.vue';
 export default {
     components: {
         SideNav,
@@ -57,10 +64,13 @@ export default {
         DepartmentList,
         AddDepartment,
         PersonInfo,
+        RecordListUploadList,
+        RecordDownLoadList,
+        RecordList
 
         // RecordList,
         // RecordListUploadList,
-        // RecordListDownLoadList,
+        // RecordDownLoadList,
         // AppUpload,
         // AppDownload,
         // PersonInfo,
@@ -84,6 +94,7 @@ export default {
     methods: {
         handleOptionSelect(option) {
             switch (option) {
+             
                 case 'upload':
                     this.currentComponent = 'FileUpload';
                     break;
@@ -97,7 +108,7 @@ export default {
                     this.currentComponent = 'RecordListUploadList';
                     break;
                 case 'downloadrecordlist':
-                    this.currentComponent = 'RecordListDownLoadList';
+                    this.currentComponent = 'RecordDownLoadList';
                     break;
                 case 'uploadapp':
                     this.currentComponent = 'AppUpload';

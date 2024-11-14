@@ -18,9 +18,9 @@
                 <a href="#" class="waves-effect">
                     <i class="zmdi zmdi-view-dashboard"></i><span>首页</span> <i class="fa fa-angle-left pull-right"></i>
                 </a>
-                <ul class="sidebar-submenu">
+                <!-- <ul class="sidebar-submenu">
                     <li><a href="#"><i class="zmdi zmdi-star-outline"></i>仪表盘</a></li>
-                </ul>
+                </ul> -->
 
             </li>
             <li>
@@ -119,7 +119,7 @@
                             新增部门</a></li>
                 </ul>
             </li>
-            <li>
+            <!-- <li>
                 <a href="#" class="waves-effect">
                     <i class="zmdi zmdi-card-travel"></i><span>应用管理</span>
                     <i class="fa fa-angle-left pull-right"></i>
@@ -137,7 +137,7 @@
 
                 </ul>
 
-            </li>
+            </li> -->
         </ul>
 
     </div>
