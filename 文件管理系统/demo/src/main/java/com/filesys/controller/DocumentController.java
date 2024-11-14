@@ -1,8 +1,12 @@
 package com.filesys.controller;
 
 import com.filesys.entity.Document;
+import com.filesys.entity.Documentdownloadtime;
+import com.filesys.entity.Documentuploadtime;
 import com.filesys.entity.User;
 import com.filesys.service.IDocumentService;
+import com.filesys.service.IDocumentdownloadtimeService;
+import com.filesys.service.IDocumentuploadtimeService;
 import com.filesys.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -30,9 +34,34 @@ public class DocumentController {
 
     @Autowired
     private IDocumentService documentService;
+
+    @Autowired
+    private IDocumentdownloadtimeService documentdownloadtimeService;
+
+    @Autowired
+    private IDocumentuploadtimeService documentuploadtimeService;
+
+
     @Autowired
     private IUserService userService;
 
+    private void recorduploadtime(Document document){
+        Documentuploadtime documentuploadtime = new Documentuploadtime();
+        documentuploadtime.setDocumentId(document.getId());
+        documentuploadtime.setDocumentName(document.getName());
+        documentuploadtime.setUserId(document.getAuthor());
+        documentuploadtime.setUserName(userService.getById(document.getAuthor()).getUsername());
+        documentuploadtimeService.save(documentuploadtime);
+    }
+
+    private void recorddownloadtime(Document document,String userId){
+        Documentdownloadtime documentdownloadtime = new Documentdownloadtime();
+        documentdownloadtime.setDocumentId(document.getId());
+        documentdownloadtime.setDocumentName(document.getName());
+        documentdownloadtime.setUserId(userId);
+        documentdownloadtime.setUserName(userService.getById(userId).getUsername());
+        documentdownloadtimeService.save(documentdownloadtime);
+    }
 
     @PostMapping("/upload/file")
     @ResponseBody
@@ -54,6 +83,8 @@ public class DocumentController {
         try {
             //写入文件
             file.transferTo(filePath);
+
+
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,6 +95,9 @@ public class DocumentController {
     @PostMapping
     @ResponseBody
     public Boolean uploadFile(@RequestBody Document document) {
+
+        recorduploadtime(document);
+
         return documentService.save(document);
     }
 
@@ -107,6 +141,8 @@ public class DocumentController {
         if (!file.exists()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        recorddownloadtime(document,userid);
 
         Resource resource = new FileSystemResource(file);
         HttpHeaders headers = new HttpHeaders();

@@ -197,7 +197,7 @@ export default {
                                     visibleDepartmentId: '',
                                     visibleUserId: ''
                                 },
-                                    this.departmentvisible = false;
+                                this.departmentvisible = false;
                                 this.uservisible = false;
                                 this.file = null;
                                 this.$refs.fileInput.value = ''; // 清空文件输入控件
@@ -206,7 +206,8 @@ export default {
                             } else {
                                 alert('上传失败');
                             }
-                        })
+                        });
+                        
 
                     } else {
                         alert('上传失败,上传的文件名称重复,请更改文件名');
