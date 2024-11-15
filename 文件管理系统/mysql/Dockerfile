@@ -1,5 +1,5 @@
 # 使用官方 MySQL 8.4.3 镜像
-FROM mysql:8.4.3
+FROM mysql:8.0
 
 # 设置环境变量
 ENV MYSQL_ROOT_PASSWORD=12345678

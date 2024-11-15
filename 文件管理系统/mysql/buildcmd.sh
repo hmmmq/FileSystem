@@ -1,2 +1,2 @@
-docker pull mysql:8.4.3
+docker pull mysql:8.0
 docker build -t mysqldb .
