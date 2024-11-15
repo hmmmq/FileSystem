@@ -1,1 +1,1 @@
-docker run -d -p 8083:8083 -v $(pwd):/app static-server
+docker run -d -p 8083:8083 -v .:/app static-server
