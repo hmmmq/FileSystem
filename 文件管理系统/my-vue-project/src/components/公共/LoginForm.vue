@@ -5,7 +5,7 @@
                 <img src="http://192.168.0.101:8083/images/logo-icon.png" alt="logo icon">
             </div>
             <div class="card-title text-uppercase text-center py-3">文件协同共享管理系统</div>
-            <form>
+            <form @submit.prevent="Login">
                 <div class="form-group">
                     <label for="exampleInputUsername" class="">用户名</label>
                     <div class="position-relative has-icon-right">
@@ -27,8 +27,7 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-primary shadow-primary btn-block waves-effect waves-light"
-                    @click="Login">登录</button>
+                <button type="submit" class="btn btn-primary shadow-primary btn-block waves-effect waves-light">登录</button>
             </form>
         </div>
     </div>
