@@ -18,7 +18,7 @@
                     <div class="card">
                         <div class="card-header text-uppercase">支持多文件上传,点击中间区域上传</div>
                         <div class="card-body">
-                            <form action="http://127.0.0.1:8083/app/upload" class="dropzone" id="dropzone2">
+                            <form action="http://192.168.0.101:8083/app/upload" class="dropzone" id="dropzone2">
                                 <div class="fallback">
                                     <input name="file" type="file" multiple>
                                 </div>

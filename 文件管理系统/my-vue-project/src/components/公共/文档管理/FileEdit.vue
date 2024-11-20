@@ -114,7 +114,7 @@ export default {
     data() {
         return {
             file: null,
-            url: 'http://localhost:8086/document/upload',
+            url: 'http://192.168.0.101:8086/document/upload',
             user: {},
             document: {
                 id: this.initialDocument.id || '',
@@ -165,12 +165,12 @@ export default {
             this.document.visibleUserId = selectedOptions.join(',');
         },
         getUsers() {
-            axios.get('http://localhost:8086/user/').then(res => {
+            axios.get('http://192.168.0.101:8086/user/').then(res => {
                 this.users = res.data;
             });
         },
         getDepartments() {
-            axios.get('http://localhost:8086/department/').then(res => {
+            axios.get('http://192.168.0.101:8086/department/').then(res => {
                 this.departments = res.data;
             });
         },
@@ -184,10 +184,10 @@ export default {
             if (this.file != null) {
                 let formData = new FormData();
                 formData.append('file', this.file);
-                axios.post('http://localhost:8086/document/upload/file', formData)
+                axios.post('http://192.168.0.101:8086/document/upload/file', formData)
                     .then(res => {
                         if (res.data) {
-                            return axios.put('http://localhost:8086/document/' + this.user.id + '/' + this.document.id, this.document);
+                            return axios.put('http://192.168.0.101:8086/document/' + this.user.id + '/' + this.document.id, this.document);
                         } else {
                             throw new Error('上传的文件名称重复,请更改文件名');
                         }
@@ -203,7 +203,7 @@ export default {
                         alert(error.message || '更新失败,你无权更改此文档');
                     });
             } else {
-                axios.put('http://localhost:8086/document/' + this.user.id + '/' + this.document.id, this.document)
+                axios.put('http://192.168.0.101:8086/document/' + this.user.id + '/' + this.document.id, this.document)
                     .then(res => {
                         if (res.data) {
                             alert('更新成功');

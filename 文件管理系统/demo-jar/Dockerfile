@@ -5,7 +5,7 @@ FROM openjdk:8-jdk-alpine
 WORKDIR /app
 
 # 将编译好的 jar 文件复制到镜像中
-COPY ./demo-0.0.1-SNAPSHOT.jar /app/demo.jar
+COPY ./demo.jar /app/demo.jar
 
 # 设置容器启动命令
 ENTRYPOINT ["java", "-jar", "/app/demo.jar"]

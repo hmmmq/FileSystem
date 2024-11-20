@@ -94,7 +94,7 @@ export default {
     data() {
         return {
             file: null,
-            url: 'http://localhost:8086/document/upload',
+            url: 'http://192.168.0.101:8086/document/upload',
             user: {},
             document: {
                 name: '',
@@ -160,12 +160,12 @@ export default {
             this.document.visibleUserId = selectedOptions.join(',');
         },
         getUsers() {
-            axios.get('http://localhost:8086/user/').then(res => {
+            axios.get('http://192.168.0.101:8086/user/').then(res => {
                 this.users = res.data;
             })
         },
         getDepartments() {
-            axios.get('http://localhost:8086/department/').then(res => {
+            axios.get('http://192.168.0.101:8086/department/').then(res => {
                 this.departments = res.data;
             })
         },
@@ -180,10 +180,10 @@ export default {
             let formData = new FormData();
             formData.append('file', this.file);
             try {
-                axios.post('http://localhost:8086/document/upload/file', formData
+                axios.post('http://192.168.0.101:8086/document/upload/file', formData
                 ).then(res => {
                     if (res.data) {
-                        axios.post('http://localhost:8086/document/', this.document).then(res => {
+                        axios.post('http://192.168.0.101:8086/document/', this.document).then(res => {
                             if (res.data) {
                                 alert('上传成功');
                                 this.document = {

@@ -6,7 +6,7 @@ ENV MYSQL_ROOT_PASSWORD=12345678
 ENV MYSQL_DATABASE=filesys
 
 # 将 SQL 文件复制到容器内的初始化目录
-COPY ./filesyssql.sql /docker-entrypoint-initdb.d/
+COPY ./mysqldb.sql /docker-entrypoint-initdb.d/
 
 # 暴露 MySQL 默认端口
 EXPOSE 3306

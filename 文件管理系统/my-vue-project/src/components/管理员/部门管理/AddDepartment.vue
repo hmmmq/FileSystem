@@ -60,7 +60,7 @@ export default {
                 parentId: '',
                 amount: '',
             },
-            URL: 'http://localhost:8086/department/'
+            URL: 'http://192.168.0.101:8086/department/'
         }
     },
     methods: {

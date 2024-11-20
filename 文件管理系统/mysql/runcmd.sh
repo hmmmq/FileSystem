@@ -1,1 +1,1 @@
-docker run -d -p 3307:3306 -v .:/app mysqldb
+docker run -d --name mysql-container --network mynetwork -p 3307:3306 -v .:/app mysqldb

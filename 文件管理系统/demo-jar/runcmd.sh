@@ -1,1 +1,1 @@
-docker run -d -p 8086:8086 -v .:/app demo-jar
+docker run -d --name spring-boot-container --network mynetwork -p 8086:8086 -v .:/app demo-jar
