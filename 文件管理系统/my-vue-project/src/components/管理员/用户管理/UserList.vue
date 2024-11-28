@@ -107,9 +107,9 @@ export default {
         },
         fetchData() {
             try {
-                const res = axios.get('http://192.168.0.101:8086/user/');
+                const res = axios.get('http://127.0.0.1:8086/user/');
                 if (res.status === 200) {
-                    console.log('http://192.168.0.101:8086/user/');
+                    console.log('http://127.0.0.1:8086/user/');
                     console.log('this.userlist = res.data;');
                 }
             } catch (err) {
@@ -140,7 +140,7 @@ export default {
 
 
                     try {
-                        const promise = await axios.get('http://192.168.0.101:8086/user/');
+                        const promise = await axios.get('http://127.0.0.1:8086/user/');
                         if (promise.status === 200) {
                             console.log(promise.data);
                             userlist2d = this.convertTo2DArray(promise.data);
@@ -229,14 +229,14 @@ export default {
                             var data = $(event.currentTarget).val();
                             console.log('编辑数据:', data);
                             console.log('数据:', this.initialuser);
-                            axios.get('http://192.168.0.101:8086/user/' + data).then(res => {
+                            axios.get('http://127.0.0.1:8086/user/' + data).then(res => {
                                 this.initialUser = res.data;
                             });
 
                         });
 
                         $('#example9 tbody').off('click', '.delete-btn').on('click', '.delete-btn', (event) => {
-                            axios.delete('http://192.168.0.101:8086/user/' + $(event.currentTarget).val()).then(res => {
+                            axios.delete('http://127.0.0.1:8086/user/' + $(event.currentTarget).val()).then(res => {
                                 if (res.data) {
                                     console.log('删除成功');
                                     alert('删除成功');

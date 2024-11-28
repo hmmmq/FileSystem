@@ -94,6 +94,9 @@ export default {
     methods: {
         handleOptionSelect(option) {
             switch (option) {
+                case 'index':
+                    this.currentComponent = 'WelcomePanel';
+                    break;
              
                 case 'upload':
                     this.currentComponent = 'FileUpload';

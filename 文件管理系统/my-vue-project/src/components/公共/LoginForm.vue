@@ -2,7 +2,7 @@
     <div class="card-body">
         <div class="card-content p-2">
             <div class="text-center">
-                <img src="http://192.168.0.101:8083/images/logo-icon.png" alt="logo icon">
+                <img src="http://127.0.0.1:8083/images/logo-icon.png" alt="logo icon">
             </div>
             <div class="card-title text-uppercase text-center py-3">文件协同共享管理系统</div>
             <form @submit.prevent="Login">
@@ -55,7 +55,7 @@ export default {
                 alert('账号或密码不能为空');
                 return;
             }
-            axios.post('http://192.168.0.101:8086/user/login', this.user).then(res => {
+            axios.post('http://127.0.0.1:8086/user/login', this.user).then(res => {
                 console.log(res);
                 if (res.status == 200 && res.data != '' && res.data != null) {
                     this.user = res.data;

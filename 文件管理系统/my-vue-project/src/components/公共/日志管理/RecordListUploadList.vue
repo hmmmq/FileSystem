@@ -99,10 +99,10 @@ export default {
             this.user = JSON.parse(localStorage.getItem('user'));
             var url = '';
             if (this.user.type) {
-                url = 'http://192.168.0.101:8086/documentuploadtime/';
+                url = 'http://127.0.0.1:8086/documentuploadtime/';
             }
             else {
-                url = 'http://192.168.0.101:8086/documentuploadtime/user/' + this.user.id;
+                url = 'http://127.0.0.1:8086/documentuploadtime/user/' + this.user.id;
             }
 
             this.initializeDataTable(url);

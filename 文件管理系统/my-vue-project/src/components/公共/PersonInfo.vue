@@ -14,7 +14,7 @@
                     <div class="card-body">
                         <div class="card-content p-2">
                             <div class="text-center">
-                                <img src="http://192.168.0.101:8083/images/logo-icon.png" alt="logo icon">
+                                <img src="http://127.0.0.1:8083/images/logo-icon.png" alt="logo icon">
                             </div>
                             <div class="card-title text-uppercase text-center py-3">用户个人中心</div>
                             <form>
@@ -121,7 +121,7 @@ export default {
             this.user.departmentName = this.departments.find(department => department.id == this.user.departmentId).name;
         },
         getDepartments() {
-            axios.get('http://192.168.0.101:8086/department/').then(res => {
+            axios.get('http://127.0.0.1:8086/department/').then(res => {
                 this.departments = res.data;
             });
         },
@@ -138,7 +138,7 @@ export default {
                 alert('请填写完整信息');
                 return;
             }
-            axios.put('http://192.168.0.101:8086/user/' + this.user.id, this.user).then(res => {
+            axios.put('http://127.0.0.1:8086/user/' + this.user.id, this.user).then(res => {
                 if (res.data) {
                     alert('修改成功');
                     localStorage.setItem('user', JSON.stringify(this.user));

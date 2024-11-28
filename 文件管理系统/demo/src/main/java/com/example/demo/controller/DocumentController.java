@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -233,8 +236,13 @@ public class DocumentController {
 
         Resource resource = new FileSystemResource(file);
         HttpHeaders headers = new HttpHeaders();
-
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
+        String fileName = null;
+        try {
+            fileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName);
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 

@@ -66,7 +66,7 @@ export default {
                 parentId: this.initialDepartment.parentId || '',
                 amount: this.initialDepartment.amount || '',
             },
-            URL: 'http://192.168.0.101:8086/department/'
+            URL: 'http://127.0.0.1:8086/department/'
         }
     },
     methods: {

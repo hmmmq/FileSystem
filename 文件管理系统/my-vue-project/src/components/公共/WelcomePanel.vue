@@ -7,7 +7,7 @@
             </div>
 
             <div>
-                <img src="http://192.168.0.101:8083/images/welcomebackground2.jpg" alt="欢迎进入山东华氟文件协同共享管理系统"
+                <img src="http://127.0.0.1:8083/images/welcomebackground2.jpg" alt="欢迎进入山东华氟文件协同共享管理系统"
                     class="image-scale">
             </div>
         </div>

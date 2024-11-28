@@ -2,8 +2,8 @@
     <div id="sidebar-wrapper" data-simplebar="init" data-simplebar-auto-hide="true">
 
         <div class="brand-logo">
-            <a href="index.html">
-                <img src="http://192.168.0.101:8083/images/logo-icon.png" class="logo-icon" alt="logo icon">
+            <a href="#">
+                <img src="http://127.0.0.1:8083/images/logo-icon.png" class="logo-icon" alt="logo icon">
 
                 <h5 class="logo-text" v-if="user?.type">管理员</h5>
 
@@ -15,7 +15,7 @@
         <ul class="sidebar-menu do-nicescrol">
             <li class="sidebar-header">导航栏</li>
             <li>
-                <a href="#" class="waves-effect">
+                <a href="#" class="waves-effect" @click="selectOption('index')">
                     <i class="zmdi zmdi-view-dashboard"></i><span>首页</span> <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <!-- <ul class="sidebar-submenu">

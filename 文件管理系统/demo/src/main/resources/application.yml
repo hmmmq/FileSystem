@@ -7,15 +7,15 @@ spring:
       suffix: .html
   servlet:
     multipart:
-      max-file-size: 10GB
-      max-request-size: 10GB
+      max-file-size: 200MB
+      max-request-size: 200MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql-container:3306/filesys?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+    url: jdbc:mysql://localhost:3306/filesys?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
     username: root
     password: 12345678
   resources:
-    static-locations: file:./doc/
+    static-locations: src/main/resources/doc
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
@@ -41,4 +41,4 @@ mybatis-plus:
     jdbc-type-for-null: 'null'
 
 upload:
-  path: ./doc
+  path: src/main/resources/doc
