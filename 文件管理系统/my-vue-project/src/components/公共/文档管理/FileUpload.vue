@@ -158,6 +158,7 @@ export default {
       uservisible: false,
       departments: [],
       users: [],
+      maxFileSize: 200 * 1024 * 1024, // 最大文件大小（200 MB）
     };
   },
   mounted() {
@@ -167,6 +168,14 @@ export default {
     this.getUsers();
   },
   methods: {
+    checkFileSize(){
+      if(this.file.size > this.maxFileSize){
+        alert("单次上传文件大小不得超过200MB.");
+        return false;
+      }else{
+        return true;
+      }
+    },
     checkFileFormat() {
       // 定义允许的文件格式
       const allowedFormats = [
@@ -193,6 +202,8 @@ export default {
         "tiff",
         "pdf",
         "csv",
+        "et",
+        "ett"
       ];
 
       // 获取文件名并提取后缀名
@@ -279,6 +290,9 @@ export default {
       //*.txt;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx;*.dwg;*.dws;*.dxf;*.dwt;*.dwf;*.dwfx;*.jpg;*jpeg;*jpe;*.bmp;*.gif;*.png;*.tif;*.tiff;*.txt;*.pdf;*.csv
       if (!this.checkFileFormat()) {
         alert("文件格式不符合要求");
+        return;
+      }
+      if(!this.checkFileSize()){
         return;
       }
 
