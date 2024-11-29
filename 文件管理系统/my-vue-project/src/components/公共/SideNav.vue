@@ -119,25 +119,22 @@
                             新增部门</a></li>
                 </ul>
             </li>
-            <!-- <li>
+            <li>
                 <a href="#" class="waves-effect">
                     <i class="zmdi zmdi-card-travel"></i><span>应用管理</span>
                     <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="sidebar-submenu">
-                    <li><a href="#" @click="selectOption('uploadapp')"><i class="zmdi zmdi-star-outline"></i>
+                    <li v-if="user?.type"><a href="#" @click="selectOption('uploadapp')"><i class="zmdi zmdi-star-outline"></i>
                             上传应用</a>
                     </li>
-                    <li><a href="#" @click="selectOption('downloadapp')"><i class="zmdi zmdi-star-outline"></i>
-                            下载应用</a>
+                    <li><a href="#" @click="selectOption('applist')"><i class="zmdi zmdi-star-outline"></i>
+                            应用列表</a>
                     </li>
-                    <li v-if="user?.type" @click="selectOption('deleteapp')"><a href="#"><i
-                                class="zmdi zmdi-star-outline"></i> 删除应用</a>
-                    </li>
-
+                    
                 </ul>
 
-            </li> -->
+            </li>
         </ul>
 
     </div>

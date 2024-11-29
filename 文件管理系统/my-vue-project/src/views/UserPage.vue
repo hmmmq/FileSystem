@@ -14,25 +14,10 @@
         <RecordListUploadList v-show="currentComponent === 'RecordListUploadList'" />
         <RecordDownLoadList v-show="currentComponent === 'RecordDownLoadList'" />
         <RecordList v-show="currentComponent === 'RecordList'" />
-
-        <!-- <FileUpload v-show="currentComponent === 'FileUpload'" />
-        <FileList v-show="currentComponent === 'FileList'" />
-        <RecordList v-show="currentComponent === 'RecordList'" />
-        <RecordListUploadList v-show="currentComponent === 'RecordListUploadList'" />
-        <RecordDownLoadList v-show="currentComponent === 'RecordDownLoadList'" />
         <AppUpload v-show="currentComponent === 'AppUpload'" />
-        <AppDownload v-show="currentComponent === 'AppDownload'" />
-        <PersonInfo v-show="currentComponent === 'PersonInfo'" />
-        <RoleList v-show="currentComponent === 'RoleList'" />
-        <AddRole v-show="currentComponent === 'AddRole'" />
-        <AddRoleUser v-show="currentComponent === 'AddRoleUser'" />
-        <PermissionList v-show="currentComponent === 'PermissionList'" />
-        <UserList v-show="currentComponent === 'UserList'" />
-        <AddUser v-show="currentComponent === 'AddUser'" />
-        <DepartmentList v-show="currentComponent === 'DepartmentList'" />
-        <AddDepartment v-show="currentComponent === 'AddDepartment'" />
-        <UserDepartmentList v-show="currentComponent === 'UserDepartmentList'" />
-        <DeleteAppList v-show="currentComponent === 'DeleteAppList'" /> -->
+        <AppList v-show="currentComponent === 'AppList'" />
+
+      
 
     </div>
 
@@ -52,6 +37,8 @@ import PersonInfo from '@/components/公共/PersonInfo.vue';
 import RecordListUploadList from '@/components/公共/日志管理/RecordListUploadList.vue';
 import RecordDownLoadList from '@/components/公共/日志管理/RecordDownLoadList.vue';
 import RecordList from '@/components/公共/日志管理/RecordList.vue';
+import AppUpload from '@/components/管理员/应用管理/AppUpload.vue';
+import AppList from '@/components/管理员/应用管理/AppList.vue';
 export default {
     components: {
         SideNav,
@@ -66,22 +53,9 @@ export default {
         PersonInfo,
         RecordListUploadList,
         RecordDownLoadList,
-        RecordList
-
-        // RecordList,
-        // RecordListUploadList,
-        // RecordDownLoadList,
-        // AppUpload,
-        // AppDownload,
-        // PersonInfo,
-        // RoleList,
-        // AddRole,
-        // AddRoleUser,
-        // PermissionList,
-        // DepartmentList,
-        // AddDepartment,
-        // UserDepartmentList,
-        // DeleteAppList,
+        RecordList,
+        AppUpload,
+        AppList
 
     },
     data() {
@@ -97,7 +71,12 @@ export default {
                 case 'index':
                     this.currentComponent = 'WelcomePanel';
                     break;
-             
+                case 'uploadapp':
+                    this.currentComponent = 'AppUpload';
+                    break;
+                case 'applist':
+                    this.currentComponent = 'AppList';
+                    break;
                 case 'upload':
                     this.currentComponent = 'FileUpload';
                     break;

@@ -47,8 +47,7 @@ public class ApplicationController {
     @Autowired
     private IApplicationuploadtimeService applicationuploadtimeService;
 
-//    @Autowired
-//    private IApplicationviewtimeService applicationviewtimeService;
+
 
 
     @Autowired
@@ -70,6 +69,10 @@ public class ApplicationController {
         applicationdownloadtime.setUserId(userId);
         applicationdownloadtime.setUserName(userService.getById(userId).getUsername());
         applicationdownloadtimeService.save(applicationdownloadtime);
+        Integer viewCount = application.getViewCount();
+        viewCount++;
+        application.setViewCount(viewCount);
+        applicationService.updateById(application);
     }
 
 
@@ -114,81 +117,6 @@ public class ApplicationController {
 
 
         return false;
-    }
-
-    @GetMapping("/view/{userid}/{applicationid}")
-    public ResponseEntity<Resource> viewApplication(@PathVariable String userid, @PathVariable Integer applicationid) {
-        // Validate input
-        if (userid == null || applicationid == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        // Fetch the application
-        Application application = applicationService.getById(applicationid);
-        if (application == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        // Validate user permission
-        User user = userService.getById(userid);
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-
-        if(!application.getAuthor().equals(userid)){
-
-            if (!application.getPermission()) {
-
-                if (application.getVisibleUserId() == null || application.getVisibleDepartmentId() == null) {
-                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                }
-
-                // Check if the user is allowed to view the application based on their department and user ID
-                if (user.getDepartmentId() != null) {
-                    if (!application.getVisibleUserId().contains(user.getId()) && !application.getVisibleDepartmentId().contains(user.getDepartmentId().toString())) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                } else {
-                    if (!application.getVisibleUserId().contains(user.getId())) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-
-        }
-
-        // Get the file path
-        Path filePath = Paths.get(uploadPath, application.getUrl()).toAbsolutePath();
-        File file = filePath.toFile();
-        if (!file.exists()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        // Record the view time (you can implement a similar record-view-time method as you did with download)
-        // recordViewTime(application, userid);  // Optional if you want to track viewing time
-
-        // Serve the application as a resource
-        Resource resource = new FileSystemResource(file);
-        HttpHeaders headers = new HttpHeaders();
-
-        // Set the content type and disposition for inline display (browser will try to display it instead of downloading)
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"");
-
-        // Check the file type and set the appropriate content type
-        if (application.getUrl().endsWith(".pdf")) {
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
-        } else if (application.getUrl().endsWith(".jpg") || application.getUrl().endsWith(".jpeg") || application.getUrl().endsWith(".png")) {
-            headers.add(HttpHeaders.CONTENT_TYPE, "image/jpeg");  // or "image/png" based on the file
-        } else {
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/octet-stream");  // Default to binary stream if unknown file type
-        }
-
-        Integer viewCount = application.getViewCount();
-        viewCount++;
-        application.setViewCount(viewCount);
-        applicationService.updateById(application);
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
 
