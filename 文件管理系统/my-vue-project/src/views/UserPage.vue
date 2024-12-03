@@ -72,7 +72,7 @@ export default {
                     this.currentComponent = 'WelcomePanel';
                     break;
                 case 'uploadapp':
-                    this.currentComponent = 'AppUpload';
+                    this.currentComponent = 'AppUpload'; 
                     break;
                 case 'applist':
                     this.currentComponent = 'AppList';
@@ -91,12 +91,6 @@ export default {
                     break;
                 case 'downloadrecordlist':
                     this.currentComponent = 'RecordDownLoadList';
-                    break;
-                case 'uploadapp':
-                    this.currentComponent = 'AppUpload';
-                    break;
-                case 'downloadapp':
-                    this.currentComponent = 'AppDownload';
                     break;
                 case 'personcentre':
                     this.currentComponent = 'PersonInfo';
