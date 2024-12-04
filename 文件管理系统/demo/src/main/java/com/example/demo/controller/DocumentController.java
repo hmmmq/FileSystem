@@ -172,8 +172,13 @@ public class DocumentController {
         HttpHeaders headers = new HttpHeaders();
 
         // Set the content type and disposition for inline display (browser will try to display it instead of downloading)
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"");
-
+        String fileName = null;
+        try {
+            fileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName);
         // Check the file type and set the appropriate content type
         if (document.getUrl().endsWith(".pdf")) {
             headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
