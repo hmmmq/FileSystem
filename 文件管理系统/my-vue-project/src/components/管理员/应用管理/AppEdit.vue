@@ -114,7 +114,7 @@ export default {
     data() {
         return {
             file: null,
-            url: 'http://127.0.0.1:8086/application/upload',
+            url: 'http://192.168.0.104:8086/application/upload',
             user: {},
             application: {
                 id: this.initialapplication.id || '',
@@ -165,12 +165,12 @@ export default {
             this.application.visibleUserId = selectedOptions.join(',');
         },
         getUsers() {
-            axios.get('http://127.0.0.1:8086/user/').then(res => {
+            axios.get('http://192.168.0.104:8086/user/').then(res => {
                 this.users = res.data;
             });
         },
         getDepartments() {
-            axios.get('http://127.0.0.1:8086/department/').then(res => {
+            axios.get('http://192.168.0.104:8086/department/').then(res => {
                 this.departments = res.data;
             });
         },
@@ -184,10 +184,10 @@ export default {
             if (this.file != null) {
                 let formData = new FormData();
                 formData.append('file', this.file);
-                axios.post('http://127.0.0.1:8086/application/upload/file', formData)
+                axios.post('http://192.168.0.104:8086/application/upload/file', formData)
                     .then(res => {
                         if (res.data) {
-                            return axios.put('http://127.0.0.1:8086/application/' + this.user.id + '/' + this.application.id, this.application);
+                            return axios.put('http://192.168.0.104:8086/application/' + this.user.id + '/' + this.application.id, this.application);
                         } else {
                             throw new Error('上传的应用名称重复,请更改应用名');
                         }
@@ -203,7 +203,7 @@ export default {
                         alert(error.message || '更新失败,你无权更改此应用');
                     });
             } else {
-                axios.put('http://127.0.0.1:8086/application/' + this.user.id + '/' + this.application.id, this.application)
+                axios.put('http://192.168.0.104:8086/application/' + this.user.id + '/' + this.application.id, this.application)
                     .then(res => {
                         if (res.data) {
                             alert('更新成功');

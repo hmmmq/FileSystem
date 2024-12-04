@@ -3,7 +3,7 @@
 
         <div class="brand-logo">
             <a href="#">
-                <img src="http://127.0.0.1:8083/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                <img src="http://192.168.0.104:8083/images/logo-icon.png" class="logo-icon" alt="logo icon">
 
                 <h5 class="logo-text" v-if="user?.type">管理员</h5>
 

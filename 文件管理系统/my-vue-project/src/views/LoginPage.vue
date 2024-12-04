@@ -1,6 +1,6 @@
 <template>
     <div class="background-container">
-        <img src="http://127.0.0.1:8083/images/welcomebackground1.jpg" alt="背景图片" class="background-image" />
+        <img src="http://192.168.0.104:8083/images/welcomebackground1.jpg" alt="背景图片" class="background-image" />
         <div class="">
             <div class="card card-authentication1 mx-auto my-5 " style="max-width: 23rem;">
                 <LoginForm />

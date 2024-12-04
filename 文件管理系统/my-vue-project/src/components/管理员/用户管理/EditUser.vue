@@ -105,7 +105,7 @@ export default {
                 departmentName: this.initialUser.departmentName || '',
                 status: this.initialUser.status || 'true'
             },
-            URL: 'http://127.0.0.1:8086/user/'
+            URL: 'http://192.168.0.104:8086/user/'
         }
     },
     methods: {
@@ -124,7 +124,7 @@ export default {
             return true;
         },
         getDepartments() {
-            axios.get('http://127.0.0.1:8086/department/').then(res => {
+            axios.get('http://192.168.0.104:8086/department/').then(res => {
                 this.departments = res.data;
             });
         },

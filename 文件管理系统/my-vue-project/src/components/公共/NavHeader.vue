@@ -14,7 +14,7 @@
 
                 <li class="nav-item">
                     <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                        <span class="user-profile"><img src="http://127.0.0.1:8083/images/avatars/avatar-13.png"
+                        <span class="user-profile"><img src="http://192.168.0.104:8083/images/avatars/avatar-13.png"
                                 class="img-circle" alt="user avatar"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-right">
@@ -22,7 +22,7 @@
                             <a href="#">
                                 <div class="media">
                                     <div class="avatar"><img class="align-self-start mr-3"
-                                            src="http://127.0.0.1:8083/images/avatars/avatar-13.png" alt="user avatar">
+                                            src="http://192.168.0.104:8083/images/avatars/avatar-13.png" alt="user avatar">
                                     </div>
                                     <div class="media-body">
                                         <h6 class="mt-2 user-title">{{ user?.username }}</h6>

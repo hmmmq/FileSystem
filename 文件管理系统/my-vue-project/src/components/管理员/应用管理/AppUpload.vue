@@ -141,7 +141,7 @@ export default {
   data() {
     return {
       file: null,
-      url: "http://127.0.0.1:8086/application/upload",
+      url: "http://192.168.0.104:8086/application/upload",
       user: {},
       application: {
         name: "",
@@ -265,12 +265,12 @@ export default {
       this.application.visibleUserId = selectedOptions.join(",");
     },
     getUsers() {
-      axios.get("http://127.0.0.1:8086/user/").then((res) => {
+      axios.get("http://192.168.0.104:8086/user/").then((res) => {
         this.users = res.data;
       });
     },
     getDepartments() {
-      axios.get("http://127.0.0.1:8086/department/").then((res) => {
+      axios.get("http://192.168.0.104:8086/department/").then((res) => {
         this.departments = res.data;
       });
     },
@@ -300,7 +300,7 @@ export default {
       formData.append("file", this.file);
       try {
         axios
-          .post("http://127.0.0.1:8086/application/upload/file", formData, {
+          .post("http://192.168.0.104:8086/application/upload/file", formData, {
             headers: {
               "Content-Type": "multipart/form-data", // axios 会自动补充 boundary
             },
@@ -308,7 +308,7 @@ export default {
           .then((res) => {
             if (res.data) {
               axios
-                .post("http://127.0.0.1:8086/application/", this.application)
+                .post("http://192.168.0.104:8086/application/", this.application)
                 .then((res) => {
                   if (res.data) {
                     alert("上传成功");

@@ -97,7 +97,7 @@ export default {
                 creator: '管理员',
                 userType: false
             },
-            URL: 'http://127.0.0.1:8086/user/'
+            URL: 'http://192.168.0.104:8086/user/'
         }
     },
     methods: {
@@ -105,7 +105,7 @@ export default {
             this.user.departmentName = this.departments.find(department => department.id == this.user.departmentId).name;
         },
         getDepartments() {
-            axios.get('http://127.0.0.1:8086/department/').then(res => {
+            axios.get('http://192.168.0.104:8086/department/').then(res => {
                 this.departments = res.data;
             });
         },

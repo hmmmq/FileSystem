@@ -122,10 +122,10 @@ export default {
             this.user = JSON.parse(localStorage.getItem('user'));
             var url = '';
             if (this.user.type) {
-                url = 'http://127.0.0.1:8086/application/';
+                url = 'http://192.168.0.104:8086/application/';
             }
             else {
-                url = 'http://127.0.0.1:8086/application/user/' + this.user.id;
+                url = 'http://192.168.0.104:8086/application/user/' + this.user.id;
             }
 
             this.initializeDataTable(url);
@@ -133,9 +133,9 @@ export default {
         },
         fetchData() {
             try {
-                const res = axios.get('http://127.0.0.1:8086/application/');
+                const res = axios.get('http://192.168.0.104:8086/application/');
                 if (res.status === 200) {
-                    console.log('http://127.0.0.1:8086/application/');
+                    console.log('http://192.168.0.104:8086/application/');
                     console.log('this.applicationlist = res.data;');
                 }
             } catch (err) {
@@ -263,7 +263,7 @@ export default {
                             var data = $(event.currentTarget).val();
                             console.log('编辑数据:', data);
                             console.log('数据:', this.initialapplication);
-                            axios.get('http://127.0.0.1:8086/application/' + data).then(res => {
+                            axios.get('http://192.168.0.104:8086/application/' + data).then(res => {
                                 this.initialapplication = res.data;
                             });
 
@@ -275,14 +275,14 @@ export default {
                             // 创建一个<a>link标签
                             var a = document.createElement('a');
                             // 设置下载url
-                            a.href = 'http://127.0.0.1:8086/application/download/' + user.id + '/' + applicationId;
+                            a.href = 'http://192.168.0.104:8086/application/download/' + user.id + '/' + applicationId;
                             // 点击下载
                             a.click();
                         });
 
                         $('#example-app tbody').off('click', '.delete-btn').on('click', '.delete-btn', (event) => {
                             var user = JSON.parse(localStorage.getItem('user'));
-                            axios.delete('http://127.0.0.1:8086/application/' + user.id + '/' + $(event.currentTarget).val()).then(res => {
+                            axios.delete('http://192.168.0.104:8086/application/' + user.id + '/' + $(event.currentTarget).val()).then(res => {
                                 if (res.data) {
                                     console.log('删除成功');
                                     alert('删除成功');
